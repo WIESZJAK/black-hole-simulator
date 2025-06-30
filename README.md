@@ -69,7 +69,7 @@ Under these terms:
 - **Attribution**: You must give appropriate credit, provide a link to the license, and indicate if changes were made.
 - **NonCommercial**: You may not use the material for commercial purposes.
 
-See the [LICENSE](LICENSE) file for full details.
+See the [LICENSE](LICENSE.md) file for full details.
 
 ## Contact & Contributions
 
