@@ -34,7 +34,7 @@ To run the simulator, ensure you have Python and Pygame installed. Follow these 
 
 ## Usage
 
-1. Start the simulator from the main menu, where you can specify the number of orbiting and captured stars. (GO BLACK HOLE GO!) (for optimal use 50 or 100 tops on each. if you want to set a slow simulation you can add up to 1000 stars)
+1. Start the simulator from the main menu, where you can specify the number of orbiting and captured stars. (GO BLACK HOLE GO!) (for optimal use 50 or 100 tops on each. if you want to set a slow simulation you can add up to 1000 stars. **just make sure you are lowering the speed of the simulation first** )
 2. After the simulation loads, press **"I"** to display the user interface.
 3. Press **"E"** to access sliders for editing simulation parameters (e.g., gravitational constant, trail length).
 4. Press **"F"** to view detailed statistics about the simulation and selected stars.
