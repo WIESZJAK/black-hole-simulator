@@ -50,8 +50,6 @@ To run the simulator, ensure you have Python and Pygame installed. Follow these 
 - **I**: Toggle UI visibility.
 - **E**: Open sliders for parameter editing.
 - **F**: Display detailed simulation statistics.
-- **Additional Keys**:
-- Here are all the keyboard shortcuts available in the simulator:
 
 - Esc: Quit the program (start menu) or exit the simulation (main simulation).
 - Caps Lock: Switch between input fields in the start menu.
