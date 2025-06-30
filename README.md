@@ -53,29 +53,29 @@ To run the simulator, ensure you have Python and Pygame installed. Follow these 
 - **Additional Keys**:
 - Here are all the keyboard shortcuts available in the simulator:
 
-Esc: Quit the program (start menu) or exit the simulation (main simulation).
-Caps Lock: Switch between input fields in the start menu.
-Backspace: Delete the last character in the active input field (start menu).
-P: Pause or unpause the simulation.
-R: Restart the simulation.
-L: Toggle realism mode (caps star velocities at the speed of light).
-I: Show/hide the user interface.
-Q: Toggle relativistic effects (e.g., orbital precession).
-F: Show/hide detailed statistics.
-E: Show/hide experimental sliders.
-C: Toggle collision mechanics (WIP).
-V: Switch between 2D and isometric view.
-Keypad +: Add a new star.
-Keypad -: Remove an orbiting star.
-Left Arrow: Decrease simulation speed.
-Right Arrow: Increase simulation speed.
-T: Decrease star trail length.
-Y: Increase star trail length.
-H: Decrease gravitational constant (GM).
-G: Increase gravitational constant (GM).
-N: Decrease black hole visual radius.
-B: Increase black hole visual radius.
-W, A, S, D: Move the camera up, left, down, or right.
+- Esc: Quit the program (start menu) or exit the simulation (main simulation).
+- Caps Lock: Switch between input fields in the start menu.
+- Backspace: Delete the last character in the active input field (start menu).
+- P: Pause or unpause the simulation.
+- R: Restart the simulation.
+- L: Toggle realism mode (caps star velocities at the speed of light).
+- I: Show/hide the user interface.
+- Q: Toggle relativistic effects (e.g., orbital precession).
+- F: Show/hide detailed statistics.
+- E: Show/hide experimental sliders.
+- C: Toggle collision mechanics (WIP).
+- V: Switch between 2D and isometric view.
+- Keypad +: Add a new star.
+- Keypad -: Remove an orbiting star.
+- Left Arrow: Decrease simulation speed.
+- Right Arrow: Increase simulation speed.
+- T: Decrease star trail length.
+- Y: Increase star trail length.
+- H: Decrease gravitational constant (GM).
+- G: Increase gravitational constant (GM).
+- N: Decrease black hole visual radius.
+- B: Increase black hole visual radius.
+- W, A, S, D: Move the camera up, left, down, or right.
 
 ## Demo
 
