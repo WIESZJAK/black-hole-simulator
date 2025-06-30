@@ -6,126 +6,104 @@ import datetime
 import time
 from pygame.locals import Rect
 
-# Inicjalizacja Pygame – ładuje bibliotekę do obsługi grafiki i zdarzeń
 pygame.init()
 
-# Ustawienia ekranu – pobiera rozdzielczość ekranu i ustawia tryb pełnoekranowy
-WIDTH = pygame.display.Info().current_w  # Szerokość ekranu w pikselach
-HEIGHT = pygame.display.Info().current_h  # Wysokość ekranu w pikselach
-# Tworzy okno w trybie pełnoekranowym
+WIDTH = pygame.display.Info().current_w 
+HEIGHT = pygame.display.Info().current_h 
 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
 pygame.display.set_caption(
-    "BLACK HOLE")  # Ustawia tytuł okna
+    "BLACK HOLE")
 
-# Definicje kolorów – stałe RGB i RGBA używane w grafice
-BLACK = (0, 0, 0)  # Czarny – tło
-WHITE = (255, 255, 255)  # Biały – gwiazdy orbitujące, tekst
-RED = (255, 0, 0)  # Czerwony – czarna dziura, orbity
-GRAY = (50, 50, 50)  # Szary – panele UI
-DARK_GRAY = (20, 20, 20)  # Ciemny szary – horyzont zdarzeń
-GREEN = (0, 255, 0)  # Zielony – suwaki, podświetlony tekst
-YELLOW = (255, 255, 0)  # Żółty – podświetlenie gwiazd
-DARK_GREEN = (0, 150, 0)  # Ciemny zielony – nieużywany w kodzie
-LIGHT_GRAY = (200, 200, 200)  # Jasny szary – ramki, podświetlenie
-LIGHT_BLUE = (135, 206, 250)  # Jasny niebieski – gwiazdy przechwycone
-OVERLAY_COLOR = (0, 0, 0, 150)  # Półprzezroczysty czarny – nakładki
-BLUE = (0, 0, 255)  # Niebieski – przewidywane orbity
-DARK_RED = (150, 0, 0)  # Ciemny czerwony dla ostatniej orbity
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GRAY = (50, 50, 50)
+DARK_GRAY = (20, 20, 20)
+GREEN = (0, 255, 0)
+YELLOW = (255, 255, 0)
+DARK_GREEN = (0, 150, 0)
+LIGHT_GRAY = (200, 200, 200)
+LIGHT_BLUE = (135, 206, 250)
+OVERLAY_COLOR = (0, 0, 0, 150)
+BLUE = (0, 0, 255)
+DARK_RED = (150, 0, 0) 
 
-# Stałe symulacji – domyślne wartości parametrów fizycznych i wizualnych
-GM_DEFAULT = 100000  # Domyślna stała grawitacyjna (GM) czarnej dziury
-SIMULATION_SPEED_DEFAULT = 2.000  # Domyślna prędkość symulacji (1x rzeczywista)
-TRAIL_LENGTH_DEFAULT = 50  # Domyślna długość śladu gwiazd w pikselach
-# Maksymalna początkowa prędkość gwiazd przechwyconych
+
+GM_DEFAULT = 100000
+SIMULATION_SPEED_DEFAULT = 2.000 
+TRAIL_LENGTH_DEFAULT = 50 
 MAX_INITIAL_VELOCITY_DEFAULT = 100
-PX_TO_KM_DEFAULT = 1e9  # Skala pikseli do kilometrów (1 px = 1e9 km)
-C_DEFAULT = 299792  # Prędkość światła w km/s
-# Skala czasu symulacji (do przeliczania na lata świetlne)
+PX_TO_KM_DEFAULT = 1e9
+C_DEFAULT = 299792
+
 TIME_SCALE_DEFAULT = 3000
-STAR_GM_FACTOR_DEFAULT = 0.001  # Siła interakcji grawitacyjnej między gwiazdami
-MAX_STAR_ACCEL_DEFAULT = 10  # Maksymalne przyspieszenie gwiazd z interakcji
-RELATIVITY_STRENGTH_DEFAULT = 0.0001  # Siła efektów OTW (precesja orbit)
-# Czy gwiazdy mogą spadać do czarnej dziury
+STAR_GM_FACTOR_DEFAULT = 0.001 
+MAX_STAR_ACCEL_DEFAULT = 10  
+RELATIVITY_STRENGTH_DEFAULT = 0.0001 
 FALLING_STARS_ENABLED_DEFAULT = False
-FALLING_STARS_PERCENTAGE_DEFAULT = 0  # Procentowa szansa na wpadnięcie gwiazdy
-# Promień horyzontu zdarzeń zależny od GM
+FALLING_STARS_PERCENTAGE_DEFAULT = 0 
 EVENT_HORIZON_RADIUS = int(math.sqrt(GM_DEFAULT) * 0.5)
-# Podświetlanie gwiazd blisko horyzontu
 CRITICAL_HIGHLIGHT_ENABLED_DEFAULT = False
-# Włączenie efektów OTW (domyślnie wyłączone)
 RELATIVITY_ENABLED_DEFAULT = False
-# Wizualizacja efektów OTW (domyślnie wyłączona)
 RELATIVITY_VISUALS_ENABLED_DEFAULT = False
-# Interakcje grawitacyjne między gwiazdami
 STAR_INTERACTION_ENABLED_DEFAULT = False
-COLLISIONS_ENABLED_DEFAULT = False  # Zderzenia gwiazd (domyślnie wyłączone)
-BLACK_HOLE_RADIUS_DEFAULT = 5  # Wizualny rozmiar czarnej dziury w pikselach
-# Spadek siły grawitacji z odległością (r^GRAVITY_FALLOFF)
+COLLISIONS_ENABLED_DEFAULT = False 
+BLACK_HOLE_RADIUS_DEFAULT = 5 
 GRAVITY_FALLOFF_DEFAULT = 2.0
-# Szansa ucieczki przechwyconych gwiazd (nieużywana)
 CAPTURED_ESCAPE_CHANCE_DEFAULT = 0.05
-ORBITS_ENABLED = False  # Domyślnie orbity włączone
+ORBITS_ENABLED = False 
 orbit_point_counter = 0
 
-# Zmienne globalne – aktualne wartości parametrów symulacji
-GM = GM_DEFAULT  # Aktualna stała grawitacyjna
-SIMULATION_SPEED = SIMULATION_SPEED_DEFAULT  # Aktualna prędkość symulacji
-TRAIL_LENGTH = TRAIL_LENGTH_DEFAULT  # Aktualna długość śladu
-MAX_INITIAL_VELOCITY = MAX_INITIAL_VELOCITY_DEFAULT  # Aktualna maksymalna prędkość początkowa
-PX_TO_KM = PX_TO_KM_DEFAULT  # Aktualna skala pikseli do km
-C = C_DEFAULT  # Aktualna prędkość światła
-TIME_SCALE = TIME_SCALE_DEFAULT  # Aktualna skala czasu
-STAR_GM_FACTOR = STAR_GM_FACTOR_DEFAULT  # Aktualna siła interakcji gwiazd
-MAX_STAR_ACCEL = MAX_STAR_ACCEL_DEFAULT  # Aktualne maksymalne przyspieszenie gwiazd
-RELATIVITY_STRENGTH = RELATIVITY_STRENGTH_DEFAULT  # Aktualna siła OTW
-FALLING_STARS_ENABLED = FALLING_STARS_ENABLED_DEFAULT  # Stan spadania gwiazd
-FALLING_STARS_PERCENTAGE = FALLING_STARS_PERCENTAGE_DEFAULT  # Procentowa szansa spadania
-CRITICAL_HIGHLIGHT_ENABLED = CRITICAL_HIGHLIGHT_ENABLED_DEFAULT  # Stan podświetlania krytycznych gwiazd
-RELATIVITY_ENABLED = RELATIVITY_ENABLED_DEFAULT  # Stan efektów OTW
-RELATIVITY_VISUALS_ENABLED = RELATIVITY_VISUALS_ENABLED_DEFAULT  # Stan wizualizacji OTW
-STAR_INTERACTION_ENABLED = STAR_INTERACTION_ENABLED_DEFAULT  # Stan interakcji gwiazd
-COLLISIONS_ENABLED = COLLISIONS_ENABLED_DEFAULT  # Stan zderzeń gwiazd
-BLACK_HOLE_RADIUS = BLACK_HOLE_RADIUS_DEFAULT  # Aktualny rozmiar czarnej dziury
-GRAVITY_FALLOFF = GRAVITY_FALLOFF_DEFAULT  # Aktualny spadek grawitacji
-CAPTURED_ESCAPE_CHANCE = CAPTURED_ESCAPE_CHANCE_DEFAULT  # Szansa ucieczki (nieużywana)
-ORBITS_ENABLED = True  # Domyślnie orbity włączone
+GM = GM_DEFAULT 
+SIMULATION_SPEED = SIMULATION_SPEED_DEFAULT  
+TRAIL_LENGTH = TRAIL_LENGTH_DEFAULT 
+MAX_INITIAL_VELOCITY = MAX_INITIAL_VELOCITY_DEFAULT
+PX_TO_KM = PX_TO_KM_DEFAULT 
+C = C_DEFAULT 
+TIME_SCALE = TIME_SCALE_DEFAULT 
+STAR_GM_FACTOR = STAR_GM_FACTOR_DEFAULT 
+MAX_STAR_ACCEL = MAX_STAR_ACCEL_DEFAULT 
+RELATIVITY_STRENGTH = RELATIVITY_STRENGTH_DEFAULT
+FALLING_STARS_ENABLED = FALLING_STARS_ENABLED_DEFAULT
+FALLING_STARS_PERCENTAGE = FALLING_STARS_PERCENTAGE_DEFAULT
+CRITICAL_HIGHLIGHT_ENABLED = CRITICAL_HIGHLIGHT_ENABLED_DEFAULT
+RELATIVITY_ENABLED = RELATIVITY_ENABLED_DEFAULT
+RELATIVITY_VISUALS_ENABLED = RELATIVITY_VISUALS_ENABLED_DEFAULT
+STAR_INTERACTION_ENABLED = STAR_INTERACTION_ENABLED_DEFAULT 
+COLLISIONS_ENABLED = COLLISIONS_ENABLED_DEFAULT 
+BLACK_HOLE_RADIUS = BLACK_HOLE_RADIUS_DEFAULT
+GRAVITY_FALLOFF = GRAVITY_FALLOFF_DEFAULT
+CAPTURED_ESCAPE_CHANCE = CAPTURED_ESCAPE_CHANCE_DEFAULT 
+ORBITS_ENABLED = True 
 
-# Ustawienia kamery – początkowa pozycja i zoom
-# Początkowa pozycja kamery (środek ekranu)
 camera_x, camera_y = WIDTH / 2, HEIGHT / 2
-camera_zoom = 1.0  # Początkowy zoom kamery
-MIN_ZOOM, MAX_ZOOM = 0.2, 3.0  # Minimalny i maksymalny zoom
-NUM_ORBITING = 0  # Liczba gwiazd orbitujących
-NUM_CAPTURED = 0  # Liczba gwiazd przechwyconych
-dragging_star = None  # Gwiazda aktualnie przeciągana
+camera_zoom = 1.0 
+MIN_ZOOM, MAX_ZOOM = 0.2, 3.0 
+NUM_ORBITING = 0
+NUM_CAPTURED = 0 
+dragging_star = None 
 selected_star = None
-stars = []  # Lista wszystkich gwiazd w symulacji
-accretion_particles = []  # Lista cząsteczek w dysku akrecyjnym
-DISK_RADIUS = 100  # Początkowa wielkość dysku akrecyjnego
-dt_phys = 0.005  # Krok czasowy fizyki (zmniejszony dla większej dokładności)
-# Maksymalna długość ostatniej orbity (nieużywana wprost)
+stars = []
+accretion_particles = [] 
+DISK_RADIUS = 100 
+dt_phys = 0.005 
 LAST_ORBIT_LENGTH = 5000
-prediction_length = 100  # Długość przewidywania orbity w krokach
-# Kierunek ruchu przechwyconych gwiazd (domyślnie do BH)
+prediction_length = 100 
 captured_direction = "towards"
-isometric_view = False  # Tryb widoku izometrycznego (domyślnie wyłączony)
-new_star_type = "orbiting"  # Domyślny typ nowo tworzonej gwiazdy ("orbiting" lub "captured")
-# Zasięg gradientu pola grawitacyjnego
-STRONG_FIELD_RADIUS_DEFAULT = 100  # Domyślna wartość w pikselach
+isometric_view = False 
+new_star_type = "orbiting" 
+STRONG_FIELD_RADIUS_DEFAULT = 100 
 STRONG_FIELD_RADIUS = STRONG_FIELD_RADIUS_DEFAULT
 
-# Klasa Star – reprezentuje pojedynczą gwiazdę w symulacji
 class Star:
     def __init__(self, captured=False, used_names=None, name=None):
-        # Inicjalizacja gwiazdy: czy jest przechwycona, lista użytych nazw, opcjonalna nazwa
-        self.captured = captured  # Czy gwiazda jest przechwycona
+        self.captured = captured  
         if used_names is None:
-            used_names = set()  # Zbiór użytych nazw, jeśli nie podano
+            used_names = set()  
         if name:
-            self.name = name  # Ustawienie podanej nazwy
+            self.name = name 
             used_names.add(self.name)
         else:
-            # Wybór losowej nazwy spośród dostępnych (pominięto pełną listę)
             available_names = [n for n in [
         "Rigel", "Betelgeza", "Syriusz", "Vega", "Aldebaran", "Procyon", "Antares", "Arktur",
         "Kapella", "Spika", "Deneb", "Altair", "Fomalhaut", "Regulus", "Polluks", "Mizar",
@@ -163,16 +141,12 @@ class Star:
         "Planck Horizon", "Einstein's Paradox", "Quantum Mirror", "Graviton Pulse",
         "Lense-Thirring", "Quantum Singularity", "Schrodinger's Path", "Cosmic Horizon"
     ] if n not in used_names]
-            # Losowa nazwa lub generyczna
             self.name = random.choice(
                 available_names) if available_names else f"Star_{len(used_names)}"
             used_names.add(self.name)
 
-        # Rozmiar gwiazdy w pikselach (losowy)
         self.size = random.randint(2, 5)
-        # Masa gwiazdy proporcjonalna do rozmiaru
         self.mass = self.size * random.uniform(0.8, 1.6)
-        # Różne typy gwiazd
         self.type = random.choice(["normal", "small", "heavy"])
         if self.type == "small":
             self.size = 2
@@ -180,86 +154,72 @@ class Star:
         elif self.type == "heavy":
             self.size = 8
             self.mass = 5
-        else:  # normal
+        else: 
             self.size = self.size
             self.mass = self.mass
-        # Dodanie współrzędnej Z
-        self.z = random.uniform(-200, 200)  # Początkowa współrzędna Z
-        self.vz = 0.0  # Prędkość w osi Z
+        self.z = random.uniform(-200, 200) 
+        self.vz = 0.0 
 
-        self.trail = []  # Lista punktów śladu gwiazdy
-        self.selected = False  # Czy gwiazda jest wybrana
-        # Czas rozpoczęcia orbity (dla gwiazd przechwyconych)
+        self.trail = []  
+        self.selected = False  
         self.orbit_start_time = None
-        self.orbit_count = 0  # Liczba pełnych orbit
-        self.last_angle = None  # Ostatni kąt dla obliczeń orbity
-        self.orbit_times = []  # Lista czasów orbit
-        self.current_orbit_points = []  # Punkty bieżącej orbity
-        self.last_orbit_points = []  # Punkty ostatniej orbity
-        self.total_angle = 0.0  # Suma kątów dla detekcji orbity
-        self.start_position = None  # Początkowa pozycja dla orbity
+        self.orbit_count = 0 
+        self.last_angle = None  
+        self.orbit_times = [] 
+        self.current_orbit_points = [] 
+        self.last_orbit_points = []  
+        self.total_angle = 0.0 
+        self.start_position = None  
 
-        self.is_approaching = True  # Początkowo gwiazda zbliża się
-        self.previous_distance = None  # Poprzednia odległość od czarnej dziury
-        self.orbits_completed = 0  # Licznik orbit dla gwiazd orbitujących
+        self.is_approaching = True  
+        self.previous_distance = None 
+        self.orbits_completed = 0 
         self.critical = False
 
         if self.captured:
-            # Ustawienie pozycji początkowej dla gwiazd przechwyconych w losowych miejscach
             self.x = random.uniform(0, WIDTH)
             self.y = random.uniform(0, HEIGHT)
-            while math.hypot(self.x - WIDTH / 2, self.y - HEIGHT / 2) < EVENT_HORIZON_RADIUS + 50:  # Unikanie spawnienia zbyt blisko BH
+            while math.hypot(self.x - WIDTH / 2, self.y - HEIGHT / 2) < EVENT_HORIZON_RADIUS + 50:
                 self.x = random.uniform(0, WIDTH)
                 self.y = random.uniform(0, HEIGHT)
 
-            dx = WIDTH / 2 - self.x  # Odległość x od centrum (czarna dziura)
-            dy = HEIGHT / 2 - self.y  # Odległość y od centrum
-            r = math.sqrt(dx**2 + dy**2)  # Odległość radialna od centrum
+            dx = WIDTH / 2 - self.x 
+            dy = HEIGHT / 2 - self.y  
+            r = math.sqrt(dx**2 + dy**2)  
 
-            v_circular = math.sqrt(GM / r)  # Prędkość orbitalna
-            # Szerszy zakres prędkości początkowej
+            v_circular = math.sqrt(GM / r)
             v_initial = random.uniform(0.1 * v_circular, 2.0 * v_circular)
-            angle = math.atan2(dy, dx)  # Kąt względem centrum
+            angle = math.atan2(dy, dx) 
             if captured_direction == "towards":
-                # Prędkość skierowana do czarnej dziury
                 self.vx = v_initial * -math.sin(angle)
                 self.vy = v_initial * math.cos(angle)
             elif captured_direction == "away":
-                # Prędkość skierowana od czarnej dziury
                 self.vx = v_initial * math.sin(angle)
                 self.vy = v_initial * -math.cos(angle)
             else:
-                # Losowy kierunek prędkości
                 random_angle = random.uniform(0, 2 * math.pi)
                 self.vx = v_initial * math.cos(random_angle)
                 self.vy = v_initial * math.sin(random_angle)
         else:
-            # Ustawienie pozycji i prędkości dla gwiazd orbitujących
-            self.a = random.uniform(100, 600)  # Półoś wielka orbity
+            self.a = random.uniform(100, 600) 
             e_max = min(0.95, 1 - (EVENT_HORIZON_RADIUS + 10) /
-                        self.a)  # Maksymalna ekscentryczność
-            self.e = random.uniform(0.0, e_max)  # Losowa ekscentryczność
-            self.theta = random.uniform(0, 2 * math.pi)  # Kąt początkowy
-            self.omega = random.uniform(0, 2 * math.pi)  # Kąt precesji
+                        self.a)  
+            self.e = random.uniform(0.0, e_max)
+            self.theta = random.uniform(0, 2 * math.pi) 
+            self.omega = random.uniform(0, 2 * math.pi) 
             self.r = self.a * (1 - self.e**2) / (1 + self.e *
-                               math.cos(self.theta))  # Odległość radialna
-            # Współrzędna x w układzie orbity
+                               math.cos(self.theta)) 
             x_orb = self.r * math.cos(self.theta)
-            # Współrzędna y w układzie orbity
             y_orb = self.r * math.sin(self.theta)
-            # Przekształcenie współrzędnych na ekran
             self.x = WIDTH / 2 + x_orb * \
                 math.cos(self.omega) - y_orb * math.sin(self.omega)
             self.y = HEIGHT / 2 + x_orb * \
                 math.sin(self.omega) + y_orb * math.cos(self.omega)
-            h = math.sqrt(GM * self.a * (1 - self.e**2))  # Moment pędu
-            v_r = (GM / h) * self.e * math.sin(self.theta)  # Prędkość radialna
-            v_t = h / self.r  # Prędkość tangencjalna
-            # Prędkość x w układzie orbity
+            h = math.sqrt(GM * self.a * (1 - self.e**2)) 
+            v_r = (GM / h) * self.e * math.sin(self.theta)
+            v_t = h / self.r 
             vx_orb = v_r * math.cos(self.theta) - v_t * math.sin(self.theta)
-            # Prędkość y w układzie orbity
             vy_orb = v_r * math.sin(self.theta) + v_t * math.cos(self.theta)
-            # Przekształcenie prędkości na ekran
             self.vx = vx_orb * math.cos(self.omega) - \
                                         vy_orb * math.sin(self.omega)
             self.vy = vx_orb * math.sin(self.omega) + \
@@ -268,50 +228,45 @@ class Star:
         
 
     def compute_acceleration(self, stars=None):
-        # Obliczanie przyspieszenia gwiazdy na podstawie grawitacji
-        dx = (WIDTH / 2 - self.x)  # Odległość x od czarnej dziury
-        dy = (HEIGHT / 2 - self.y)  # Odległość y od czarnej dziury
-        dz = (0 - self.z)  # Odległość z od centrum (czarna dziura na z=0)
-        r = math.sqrt(dx**2 + dy**2 + dz**2)  # Odległość radialna w 3D
+        dx = (WIDTH / 2 - self.x) 
+        dy = (HEIGHT / 2 - self.y)  
+        dz = (0 - self.z) 
+        r = math.sqrt(dx**2 + dy**2 + dz**2)
         if r < 2:
-            r = 2  # Minimalna odległość (zapobiega dzieleniu przez 0)
-        # Siła grawitacji z uwzględnieniem spadku
+            r = 2  
         grav_factor = GM / (r**GRAVITY_FALLOFF)
         if self.captured:
-            grav_factor *= 1.5  # Zwiększona grawitacja dla gwiazd przechwyconych
-        ax = grav_factor * dx / r  # Przyspieszenie x
-        ay = grav_factor * dy / r  # Przyspieszenie y
-        az = grav_factor * dz / r  # Przyspieszenie z
+            grav_factor *= 1.5  
+        ax = grav_factor * dx / r  
+        ay = grav_factor * dy / r 
+        az = grav_factor * dz / r 
 
         if RELATIVITY_ENABLED:
-            # Dodanie efektów OTW (precesja orbit)
             precession_factor = RELATIVITY_STRENGTH * GM / (C * r**2)
-            ax += precession_factor * self.vy  # Korekcja x
-            ay -= precession_factor * self.vx  # Korekcja y
-            # Brak korekcji dla Z w OTW w tej wersji
+            ax += precession_factor * self.vy  
+            ay -= precession_factor * self.vx  
 
         if STAR_INTERACTION_ENABLED and stars:
-            # Interakcje grawitacyjne między gwiazdami
             for other_star in stars:
                 if other_star != self:
                     dx_star = other_star.x - self.x
                     dy_star = other_star.y - self.y
                     dz_star = other_star.z - self.z
                     r_star_squared = dx_star**2 + dy_star**2 + dz_star**2
-                    if r_star_squared < 1000:  # Ograniczenie do gwiazd w promieniu 10 pikseli
+                    if r_star_squared < 1000:  
                         r_star = math.sqrt(r_star_squared)
                         if r_star < 2:
-                            r_star = 2  # Minimalna odległość
+                            r_star = 2 
                         force = STAR_GM_FACTOR * GM * \
                             other_star.mass / (r_star**GRAVITY_FALLOFF)
-                        ax += force * dx_star / r_star  # Przyspieszenie x od innej gwiazdy
-                        ay += force * dy_star / r_star  # Przyspieszenie y od innej gwiazdy
-                        az += force * dz_star / r_star  # Przyspieszenie z od innej gwiazdy
-        return ax, ay, az  # Zwraca przyspieszenie w osiach x, y i z
+                        ax += force * dx_star / r_star  
+                        ay += force * dy_star / r_star  
+                        az += force * dz_star / r_star  
+        return ax, ay, az 
 
     def draw(self, trail_surface, camera_x, camera_y, zoom):
         if ORBITS_ENABLED and len(self.trail) > 1:
-            step = max(1, len(self.trail) // 50)  # Rysuj co n-ty punkt, aby ograniczyć liczbę linii
+            step = max(1, len(self.trail) // 50) 
             for i in range(0, len(self.trail) - step, step):
                 alpha = int(255 * (i / (len(self.trail) - 1)))
                 color = (alpha, alpha, alpha)
@@ -321,7 +276,6 @@ class Star:
                 y2 = (self.trail[i + step][1] - camera_y) * zoom + HEIGHT // 2
                 pygame.draw.line(trail_surface, color, (x1, y1), (x2, y2), 1)
         star_color = LIGHT_BLUE if self.captured else WHITE
-        # Dostosowanie koloru do typu gwiazdy
         if self.type == "small":
             star_color = RED
         elif self.type == "heavy":
@@ -346,26 +300,23 @@ class Star:
         return iso_x, iso_y, star_color
 
     def fall_probability(self):
-        # Obliczanie prawdopodobieństwa wpadnięcia gwiazdy do czarnej dziury
         distance_to_bh = math.hypot(
-            self.x - WIDTH / 2, self.y - HEIGHT / 2)  # Odległość od BH
-        velocity = math.hypot(self.vx, self.vy)  # Całkowita prędkość gwiazdy
+            self.x - WIDTH / 2, self.y - HEIGHT / 2) 
+        velocity = math.hypot(self.vx, self.vy)  
         radial_velocity = (self.vx * (self.x - WIDTH / 2) + self.vy * (self.y - HEIGHT / 2)
-                           ) / distance_to_bh if distance_to_bh > 0 else 0  # Prędkość radialna
+                           ) / distance_to_bh if distance_to_bh > 0 else 0 
         escape_velocity = math.sqrt(
-            2 * GM / distance_to_bh)  # Prędkość ucieczki
+            2 * GM / distance_to_bh)  
         if distance_to_bh <= EVENT_HORIZON_RADIUS and radial_velocity < 0 and velocity < escape_velocity:
-            return 100.0  # 100% szansy na wpadnięcie wewnątrz horyzontu
+            return 100.0 
         elif distance_to_bh <= EVENT_HORIZON_RADIUS * 1.5:
-            # Prawdopodobieństwo w strefie bliskiej horyzontowi
             prob = min(100.0, max(0.0, 100 - (distance_to_bh - 
                        EVENT_HORIZON_RADIUS) / (EVENT_HORIZON_RADIUS * 0.5) * 100))
             if radial_velocity > 0:
-                prob *= 0.5  # Zmniejszona szansa, jeśli gwiazda się oddala
-            # Skalowane przez FALLING_STARS_PERCENTAGE
+                prob *= 0.5 
             return prob * FALLING_STARS_PERCENTAGE / 100.0
         else:
-            return 0.0  # Brak szansy poza strefą krytyczną
+            return 0.0  
 
     def draw_last_orbit(self, screen, camera_x, camera_y, zoom):
         if not ORBITS_ENABLED:
@@ -373,7 +324,7 @@ class Star:
         if self.orbit_count >= 1 and len(self.last_orbit_points) > 10:
             screen_last_orbit_points = []
             for point in self.last_orbit_points:
-                if len(point) == 3:  # Używamy rzeczywistych Z
+                if len(point) == 3: 
                     x, y, z = point
                 else:
                     continue
@@ -457,10 +408,10 @@ class Star:
             if len(self.current_orbit_points) > 10:
                 screen_points = []
                 for point in self.current_orbit_points:
-                    if len(point) == 2:  # Stare dane (x, y)
+                    if len(point) == 2: 
                         x, y = point
                         z = self.z
-                    elif len(point) == 3:  # Nowe dane (x, y, z)
+                    elif len(point) == 3:  
                         x, y, z = point
                     else:
                         continue
@@ -472,7 +423,7 @@ class Star:
                         screen_y = (y - camera_y) * zoom + HEIGHT // 2
                     screen_points.append((screen_x, screen_y))
                 if len(screen_points) > 2:
-                    return screen_points, RED  # Stały kolor czerwony
+                    return screen_points, RED 
             return None, None
         else:
             predicted_points = self.predict_orbit(steps=prediction_length, step_size=5.0)
@@ -489,214 +440,187 @@ class Star:
                 return screen_predicted, BLUE if not self.critical else DARK_RED
             return None, None
 
-# Funkcje pomocnicze
 def fade_out(screen, surface, duration=500):
-    # Animacja zanikania ekranu do czerni
     clock = pygame.time.Clock()
     start_time = pygame.time.get_ticks()
-    screen_copy = surface.copy()  # Kopia ekranu do animacji
+    screen_copy = surface.copy()  
     while True:
-        elapsed = pygame.time.get_ticks() - start_time  # Czas od startu animacji
-        # Przejrzystość (od 255 do 0)
+        elapsed = pygame.time.get_ticks() - start_time  
         alpha = int(255 * (1 - elapsed / duration))
         if alpha <= 0:
-            break  # Koniec animacji
-        screen.blit(screen_copy, (0, 0))  # Rysowanie kopii ekranu
-        overlay = pygame.Surface((WIDTH, HEIGHT))  # Nakładka
-        overlay.set_alpha(255 - alpha)  # Ustawienie przejrzystości nakładki
-        overlay.fill(BLACK)  # Wypełnienie czernią
-        screen.blit(overlay, (0, 0))  # Rysowanie nakładki
-        pygame.display.flip()  # Aktualizacja ekranu
-        clock.tick(60)  # Ograniczenie do 60 FPS
+            break 
+        screen.blit(screen_copy, (0, 0)) 
+        overlay = pygame.Surface((WIDTH, HEIGHT))  
+        overlay.set_alpha(255 - alpha)  
+        overlay.fill(BLACK) 
+        screen.blit(overlay, (0, 0))
+        pygame.display.flip()  
+        clock.tick(60)  
 
-# Animacja oddalania kamery na starcie symulacji
 def zoom_out_animation(screen, stars, duration=2000):
     clock = pygame.time.Clock()
     start_time = pygame.time.get_ticks()
-    initial_zoom = 100  # Początkowy zoom (duży)
-    final_zoom = 1.0  # Końcowy zoom (normalny)
+    initial_zoom = 100  
+    final_zoom = 1.0 
     trail_surface = pygame.Surface(
-        (WIDTH, HEIGHT), pygame.SRCALPHA)  # Powierzchnia dla śladów
+        (WIDTH, HEIGHT), pygame.SRCALPHA) 
 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                pygame.quit()  # Zamknięcie gry
-                sys.exit()  # Wyjście z programu
+                pygame.quit()  
+                sys.exit()  
 
-        elapsed = pygame.time.get_ticks() - start_time  # Czas od startu
+        elapsed = pygame.time.get_ticks() - start_time  
         if elapsed >= duration:
             global camera_zoom
-            camera_zoom = final_zoom  # Ustawienie końcowego zoomu
+            camera_zoom = final_zoom  
             break
 
-        t = elapsed / duration  # Progres animacji (0 do 1)
+        t = elapsed / duration 
         camera_zoom = initial_zoom - \
-            (initial_zoom - final_zoom) * (1 - (1 - t)**3)  # Krzywa animacji
-
-        screen.fill(BLACK)  # Czyszczenie ekranu
-        trail_surface.fill((0, 0, 0, 0))  # Czyszczenie śladów
+            (initial_zoom - final_zoom) * (1 - (1 - t)**3)  
+        screen.fill(BLACK)  
+        trail_surface.fill((0, 0, 0, 0)) 
 
         bh_x = (WIDTH / 2 - camera_x) * camera_zoom + \
-                WIDTH // 2  # Pozycja x czarnej dziury
+                WIDTH // 2 
         bh_y = (HEIGHT / 2 - camera_y) * camera_zoom + \
-                HEIGHT // 2  # Pozycja y czarnej dziury
-        # Promień horyzontu zdarzeń
+                HEIGHT // 2 
         event_horizon_radius = int(math.sqrt(GM) * 0.5)
         pygame.draw.circle(screen, DARK_GRAY, (int(bh_x), int(bh_y)), int(
-            event_horizon_radius * camera_zoom), 1)  # Rysowanie horyzontu
+            event_horizon_radius * camera_zoom), 1) 
         pygame.draw.circle(screen, RED, (int(bh_x), int(bh_y)), int(
-            BLACK_HOLE_RADIUS * camera_zoom))  # Rysowanie BH
+            BLACK_HOLE_RADIUS * camera_zoom))  # BH
 
         for star in stars:
-            # Rysowanie śladu gwiazdy
             star_color = star.draw(
                 trail_surface, camera_x, camera_y, camera_zoom)
             screen_x = (star.x - camera_x) * camera_zoom + \
-                        WIDTH // 2  # Pozycja x gwiazdy
+                        WIDTH // 2 
             screen_y = (star.y - camera_y) * camera_zoom + \
-                        HEIGHT // 2  # Pozycja y gwiazdy
+                        HEIGHT // 2 
             pygame.draw.circle(screen, star_color, (int(screen_x), int(screen_y)), int(
-                star.size * camera_zoom))  # Rysowanie gwiazdy
+                star.size * camera_zoom)) 
 
-        screen.blit(trail_surface, (0, 0))  # Nakładanie śladów na ekran
-        pygame.display.flip()  # Aktualizacja ekranu
-        clock.tick(60)  # Ograniczenie do 60 FPS
+        screen.blit(trail_surface, (0, 0))  
+        pygame.display.flip() 
+        clock.tick(60)  
 
-# Renderowanie tekstu z podziałem na linie i przewijaniem
 def render_textrect_with_scroll(font, text, color, rect, scroll_offset=0):
-    lines = []  # Lista renderowanych linii
-    current_line = ""  # Bieżąca linia tekstu
+    lines = []  
+    current_line = ""  
 
     for line in text.split('\n'):
         if line.startswith('# '):
-            # Nagłówek o większej czcionce
             header_font = pygame.font.SysFont("monospace", 25)
             header_text = header_font.render(line[2:], True, color)
             lines.append(header_text)
         else:
-            # Normalny tekst, dzielony na linie pasujące do szerokości
             words = line.split(' ')
             for word in words:
                 if font.size(current_line + word)[0] < rect.width:
-                    current_line += word + " "  # Dodawanie słowa do linii
+                    current_line += word + " "
                 else:
                     if current_line.strip():
-                        # Renderowanie pełnej linii
                         lines.append(font.render(
                             current_line.strip(), True, color))
-                    current_line = word + " "  # Nowa linia z bieżącym słowem
+                    current_line = word + " " 
             if current_line.strip():
                 lines.append(font.render(current_line.strip(),
-                             True, color))  # Ostatnia linia
+                             True, color))
             current_line = ""
 
     total_height = sum(line.get_height()
-                       for line in lines)  # Całkowita wysokość tekstu
-    surfaces = []  # Lista powierzchni do wyświetlenia
-    y = rect.top - scroll_offset  # Początkowa pozycja y z przewijaniem
+                       for line in lines)  
+    surfaces = []  
+    y = rect.top - scroll_offset  
 
     for line in lines:
         if y + line.get_height() > rect.top and y < rect.bottom:
-            surfaces.append((line, (rect.left, y)))  # Dodanie widocznej linii
-        y += line.get_height()  # Przesunięcie y dla kolejnej linii
+            surfaces.append((line, (rect.left, y))) 
+        y += line.get_height()  
+    return surfaces, total_height  
 
-    return surfaces, total_height  # Zwraca powierzchnie i wysokość
-
-# Ograniczenie pozycji kamery do granic ekranu
 def clamp_camera():
     global camera_x, camera_y
-    camera_x = max(0, min(camera_x, WIDTH))  # Ograniczenie x
-    camera_y = max(0, min(camera_y, HEIGHT))  # Ograniczenie y
+    camera_x = max(0, min(camera_x, WIDTH)) 
+    camera_y = max(0, min(camera_y, HEIGHT))  
 
-# Sprawdzanie, czy gwiazda jest poza granicami ekranu (z marginesem)
+
 def check_star_bounds(star):
     if star.x < -500 or star.x > WIDTH + 500 or star.y < -500 or star.y > HEIGHT + 500:
-        return True  # Gwiazda poza granicami
-    return False  # Gwiazda w granicach
+        return True
+    return False 
 
-# Formatowanie czasu symulacji na czytelny format
 def format_sim_time(seconds):
     seconds = int(seconds)
     if seconds < 60:
-        return f"{seconds}s"  # Czas w sekundach
+        return f"{seconds}s"  
     elif seconds < 3600:
         mins = seconds // 60
         secs = seconds % 60
-        return f"{mins}m:{secs:02d}s"  # Czas w minutach i sekundach
+        return f"{mins}m:{secs:02d}s"  
     else:
         hours = seconds // 3600
         mins = (seconds % 3600) // 60
         secs = seconds % 60
-        # Czas w godzinach, minutach i sekundach
         return f"{hours}h:{mins:02d}m:{secs:02d}s"
 
-# Menu ustawień – pozwala na zmianę parametrów symulacji
 def settings_menu():
     global C, camera_zoom, dt_phys, MAX_STAR_ACCEL, RELATIVITY_STRENGTH, GM, STAR_GM_FACTOR, captured_direction, MAX_INITIAL_VELOCITY, PX_TO_KM, TIME_SCALE, BLACK_HOLE_RADIUS, GRAVITY_FALLOFF
-    font = pygame.font.SysFont("monospace", 20)  # Czcionka dla etykiet
-    tiny_font = pygame.font.SysFont("monospace", 15)  # Czcionka dla opisów
+    font = pygame.font.SysFont("monospace", 20)  
+    tiny_font = pygame.font.SysFont("monospace", 15) 
     clock = pygame.time.Clock()
-    dragging_slider = None  # Suwak aktualnie przeciągany
+    dragging_slider = None  
 
-    # Słownik ustawień z wartościami, zakresami i opisami
     settings = {
-        "Captured Direction": {"value": captured_direction, "options": ["towards", "away", "random"], "desc": "Kierunek ruchu przechwyconych gwiazd: 'towards' - do BH, 'away' - od BH, 'random' - losowy."},
-        "Light Speed": {"value": C, "min": 100000, "max": 500000, "desc": "Prędkość światła w km/s - wpływa na efekty OTW, gdy włączone."},
-        "Camera Zoom": {"value": camera_zoom, "min": 0.2, "max": 3.0, "desc": "Początkowy zoom kamery - zmienia skalę widoku."},
-        "Physics Step": {"value": dt_phys, "min": 0.001, "max": 0.1, "desc": "Krok czasowy fizyki - mniejszy = wolniejsza, dokładniejsza symulacja."},
-        "Max Star Accel": {"value": MAX_STAR_ACCEL, "min": 1, "max": 50, "desc": "Maksymalne przyspieszenie gwiazd - ogranicza niestabilność."},
-        "Relativity Strength": {"value": RELATIVITY_STRENGTH, "min": 0.0, "max": 0.001, "desc": "Siła efektów OTW - wpływa na precesję orbit."},
-        "Initial GM": {"value": GM, "min": 10000, "max": 200000, "desc": "Stała grawitacyjna BH - większa = silniejsza grawitacja."},
-        "Star Interaction": {"value": STAR_GM_FACTOR, "min": 0.0, "max": 0.5, "desc": "Siła interakcji między gwiazdami - większa = więcej chaosu."},
-        "Max Initial Vel": {"value": MAX_INITIAL_VELOCITY, "min": 50, "max": 200, "desc": "Maksymalna prędkość początkowa gwiazd przechwyconych."},
-        "Px to Km": {"value": PX_TO_KM, "min": 1e8, "max": 1e10, "desc": "Skala pikseli do km - wpływa na jednostki odległości."},
-        "Time Scale": {"value": TIME_SCALE, "min": 1000, "max": 5000, "desc": "Skala czasu w symulacji - większa = szybsze lata świetlne."},
-        "BH Radius": {"value": BLACK_HOLE_RADIUS, "min": 1, "max": 20, "desc": "Rozmiar wizualny BH - tylko efekt estetyczny."},
-        "Gravity Falloff": {"value": GRAVITY_FALLOFF, "min": 1.5, "max": 3.0, "desc": "Spadek grawitacji z odległością - większy = szybszy spadek."}
+        "Captured Direction": {"value": captured_direction, "options": ["towards", "away", "random"], "desc": "Direction of captured stars' movement: 'towards' - to BH, 'away' - from BH, 'random' - random."},
+        "Light Speed": {"value": C, "min": 100000, "max": 500000, "desc": "Speed of light in km/s - affects GR effects when enabled."},
+        "Camera Zoom": {"value": camera_zoom, "min": 0.2, "max": 3.0, "desc": "Initial camera zoom - changes view scale."},
+        "Physics Step": {"value": dt_phys, "min": 0.001, "max": 0.1, "desc": "Physics time step - smaller = slower, more accurate simulation."},
+        "Max Star Accel": {"value": MAX_STAR_ACCEL, "min": 1, "max": 50, "desc": "Maximum star acceleration - limits instability."},
+        "Relativity Strength": {"value": RELATIVITY_STRENGTH, "min": 0.0, "max": 0.001, "desc": "Strength of GR effects - affects orbit precession."},
+        "Initial GM": {"value": GM, "min": 10000, "max": 200000, "desc": "BH gravitational constant - larger = stronger gravity."},
+        "Star Interaction": {"value": STAR_GM_FACTOR, "min": 0.0, "max": 0.5, "desc": "Strength of interaction between stars - larger = more chaos."},
+        "Max Initial Vel": {"value": MAX_INITIAL_VELOCITY, "min": 50, "max": 200, "desc": "Maximum initial velocity of captured stars."},
+        "Px to Km": {"value": PX_TO_KM, "min": 1e8, "max": 1e10, "desc": "Pixel to km scale - affects distance units."},
+        "Time Scale": {"value": TIME_SCALE, "min": 1000, "max": 5000, "desc": "Time scale in simulation - larger = faster light years."},
+        "BH Radius": {"value": BLACK_HOLE_RADIUS, "min": 1, "max": 20, "desc": "Visual size of BH - purely aesthetic effect."},
+        "Gravity Falloff": {"value": GRAVITY_FALLOFF, "min": 1.5, "max": 3.0, "desc": "Gravity drop-off with distance - larger = faster falloff."}
     }
 
     while True:
-        screen.fill(BLACK)  # Czyszczenie ekranu
-        title = font.render("Settings", True, WHITE)  # Tytuł menu
-        # Wyśrodkowanie tytułu
+        screen.fill(BLACK) 
+        title = font.render("Settings", True, WHITE) 
         screen.blit(title, (WIDTH // 2 - title.get_width() // 2, 20))
 
         for i, (key, setting) in enumerate(settings.items()):
-            # Renderowanie każdego ustawienia
             if "options" in setting:
-                # Etykieta z wartością
                 label = font.render(f"{key}: {setting['value']}", True, WHITE)
                 label_rect = label.get_rect(
-                    topleft=(50, 100 + i * 150))  # Pozycja etykiety
+                    topleft=(50, 100 + i * 150)) 
                 screen.blit(label, label_rect.topleft)
                 desc = tiny_font.render(
-                    setting["desc"], True, LIGHT_GRAY)  # Opis ustawienia
-                screen.blit(desc, (50, 120 + i * 60))  # Pozycja opisu
+                    setting["desc"], True, LIGHT_GRAY) 
+                screen.blit(desc, (50, 120 + i * 60)) 
                 if label_rect.collidepoint(pygame.mouse.get_pos()):
-                    # Podświetlenie przy najechaniu
                     pygame.draw.rect(screen, LIGHT_GRAY, label_rect, 2)
             else:
-                # Renderowanie suwaka dla ustawienia numerycznego
                 label = font.render(f"{key}: {setting['value']:.3f}" if isinstance(
                     setting['value'], float) else f"{key}: {setting['value']}", True, WHITE)
-                screen.blit(label, (50, 100 + i * 60))  # Pozycja etykiety
+                screen.blit(label, (50, 100 + i * 60))  
                 desc = tiny_font.render(setting["desc"], True, LIGHT_GRAY)
-                screen.blit(desc, (50, 120 + i * 60))  # Pozycja opisu
+                screen.blit(desc, (50, 120 + i * 60)) 
                 slider_rect = pygame.Rect(
-                    380, 105 + i * 60, 300, 10)  # Prostokąt suwaka
-                # Rysowanie suwaka
+                    380, 105 + i * 60, 300, 10) 
                 pygame.draw.rect(screen, LIGHT_GRAY, slider_rect)
                 slider_pos = slider_rect.left + (setting["value"] - setting["min"]) / (
-                    # Pozycja wskaźnika
                     setting["max"] - setting["min"]) * slider_rect.width
-                # Wskaźnik suwaka
                 pygame.draw.rect(screen, GREEN, (slider_pos -
                                  5, slider_rect.top - 2, 10, 14))
-                # Zapisywanie prostokąta dla obsługi zdarzeń
                 setting["rect"] = slider_rect
 
-        # Przyciski powrotu i resetu
         return_button = font.render("Back", True, WHITE)
         return_rect = return_button.get_rect(
             center=(WIDTH // 2 - 100, HEIGHT - 50))
@@ -706,21 +630,20 @@ def settings_menu():
 
         if return_rect.collidepoint(pygame.mouse.get_pos()):
             pygame.draw.rect(screen, LIGHT_GRAY, return_rect,
-                             2)  # Podświetlenie powrotu
+                             2)  
         if reset_rect.collidepoint(pygame.mouse.get_pos()):
             pygame.draw.rect(screen, LIGHT_GRAY, reset_rect,
-                             2)  # Podświetlenie resetu
+                             2)  
 
         screen.blit(return_button, return_rect.topleft)
         screen.blit(reset_button, reset_rect.topleft)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()  # Zamknięcie gry
-                sys.exit()  # Wyjście z programu
+                pygame.quit()  
+                sys.exit()  
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if return_rect.collidepoint(event.pos):
-                    # Zapisanie zmienionych ustawień przy powrocie
                     captured_direction = settings["Captured Direction"]["value"]
                     C = settings["Light Speed"]["value"]
                     camera_zoom = settings["Camera Zoom"]["value"]
@@ -734,9 +657,8 @@ def settings_menu():
                     TIME_SCALE = settings["Time Scale"]["value"]
                     BLACK_HOLE_RADIUS = settings["BH Radius"]["value"]
                     GRAVITY_FALLOFF = settings["Gravity Falloff"]["value"]
-                    return  # Wyjście z menu
+                    return 
                 elif reset_rect.collidepoint(event.pos):
-                    # Resetowanie ustawień do domyślnych
                     settings["Captured Direction"]["value"] = "towards"
                     settings["Light Speed"]["value"] = C_DEFAULT
                     settings["Camera Zoom"]["value"] = 1.0
@@ -752,7 +674,6 @@ def settings_menu():
                     settings["Gravity Falloff"]["value"] = GRAVITY_FALLOFF_DEFAULT
                 for i, (key, setting) in enumerate(settings.items()):
                     if "options" in setting:
-                        # Przełączanie opcji po kliknięciu
                         label_rect = font.render(f"{key}: {setting['value']}", True, WHITE).get_rect(
                             topleft=(50, 100 + i * 60))
                         if label_rect.collidepoint(event.pos):
@@ -761,12 +682,11 @@ def settings_menu():
                             setting["value"] = setting["options"][(
                                 current_index + 1) % len(setting["options"])]
                     elif setting["rect"].collidepoint(event.pos):
-                        dragging_slider = key  # Rozpoczęcie przeciągania suwaka
+                        dragging_slider = key 
             elif event.type == pygame.MOUSEBUTTONUP:
-                dragging_star = None  # Zakończenie przeciągania gwiazdy
-                dragging_slider = None  # Zakończenie przeciągania
+                dragging_star = None 
+                dragging_slider = None 
             elif event.type == pygame.MOUSEMOTION and dragging_slider is not None:
-                # Aktualizacja wartości suwaka podczas przeciągania
                 mx, _ = event.pos
                 setting = settings[dragging_slider]
                 setting["value"] = setting["min"] + (setting["max"] - setting["min"]) * (
@@ -774,20 +694,18 @@ def settings_menu():
                 setting["value"] = max(setting["min"], min(
                     setting["max"], setting["value"]))
 
-        pygame.display.flip()  # Aktualizacja ekranu
-        clock.tick(60)  # Ograniczenie do 60 FPS
+        pygame.display.flip() 
+        clock.tick(60) 
 
-# Menu startowe – pozwala na wybór liczby gwiazd i przejście do symulacji
 def start_menu():
-    font = pygame.font.SysFont("monospace", 40)  # Czcionka tytułu
-    small_font = pygame.font.SysFont("monospace", 20)  # Czcionka etykiet
-    tiny_font = pygame.font.SysFont("monospace", 15)  # Czcionka opisów
-    footer_font = pygame.font.SysFont("monospace", 12)  # Czcionka stopki
-    input_orbiting = ""  # Pole wejściowe dla gwiazd orbitujących
-    input_captured = ""  # Pole wejściowe dla gwiazd przechwyconych
-    active_input = None  # Aktywne pole wejściowe
+    font = pygame.font.SysFont("monospace", 40) 
+    small_font = pygame.font.SysFont("monospace", 20)
+    tiny_font = pygame.font.SysFont("monospace", 15)  
+    footer_font = pygame.font.SysFont("monospace", 12) 
+    input_orbiting = ""  
+    input_captured = "" 
+    active_input = None 
 
-    # Stałe pozycje elementów UI
     TITLE_POS = (WIDTH // 2, HEIGHT // 4 - 50)
     ORBITING_LABEL_POS = (WIDTH // 2 - 200, HEIGHT // 2 - 50)
     ORBITING_INPUT_POS = (WIDTH // 2 - 10, HEIGHT // 2 - 52)
@@ -806,50 +724,47 @@ def start_menu():
     COPYRIGHT_POS = (WIDTH // 2, HEIGHT - 30)
 
     magik_star = {"x": WIDTH // 2, "y": HEIGHT // 2 + 200,
-        "angle": math.pi / 2, "size": 3}  # Animowana gwiazda dekoracyjna
-    wiggle_time = 0  # Czas dla animacji wiggle
+        "angle": math.pi / 2, "size": 3} 
+    wiggle_time = 0 
 
     clock = pygame.time.Clock()
 
     while True:
-        dt = clock.tick(60) / 1000.0  # Czas klatki w sekundach
-        wiggle_time += dt  # Aktualizacja czasu animacji
+        dt = clock.tick(60) / 1000.0 
+        wiggle_time += dt 
 
-        screen.fill(BLACK)  # Czyszczenie ekranu
-        title = font.render("Black Hole Simulator", True, WHITE)  # Tytuł
+        screen.fill(BLACK) 
+        title = font.render("Black Hole Simulator", True, WHITE) 
         orbiting_label = small_font.render(
-            "Orbiting Stars:", True, WHITE)  # Etykieta gwiazd orbitujących
+            "Orbiting Stars:", True, WHITE) 
         orbiting_input = small_font.render(
-            input_orbiting, True, WHITE)  # Pole wejściowe orbitujących
+            input_orbiting, True, WHITE) 
         orbiting_desc = tiny_font.render(
-            "(na orbicie BH)", True, WHITE)  # Opis
-        # Etykieta gwiazd przechwyconych
+            "(ORBITTING AROUND BH)", True, WHITE)
         captured_label = small_font.render("Captured Stars:", True, WHITE)
         captured_input = small_font.render(
-            input_captured, True, WHITE)  # Pole wejściowe przechwyconych
-        captured_desc = tiny_font.render("(przechwycone)", True, WHITE)  # Opis
+            input_captured, True, WHITE) 
+        captured_desc = tiny_font.render("(CAPTURED STARS)", True, WHITE)
         copyright_text = footer_font.render(
-            "copyright by Magik 2025 Optimized by GROK", True, WHITE)  # Stopka
+            "copyright by WIESZJAK 2025 Optimized by GROK", True, WHITE) 
         info_button = tiny_font.render(
-            "[i] Informacje", True, GREEN)  # Przycisk informacji
+            "INFO /", True, GREEN) 
         more_info_button = tiny_font.render(
-            "[m] Więcej informacji", True, GREEN)  # Przycisk szczegółów
+            " MORE INFO /", True, GREEN) 
         settings_button = tiny_font.render(
-            "[s] Settings", True, GREEN)  # Przycisk ustawień
+            "Settings", True, GREEN) 
         info_rect = info_button.get_rect(center=INFO_BUTTON_POS)
         more_info_rect = more_info_button.get_rect(center=MORE_INFO_BUTTON_POS)
         settings_rect = settings_button.get_rect(center=SETTINGS_BUTTON_POS)
 
-        mouse_pos = pygame.mouse.get_pos()  # Pozycja myszy
+        mouse_pos = pygame.mouse.get_pos() 
         start_button = font.render(
-            "Go Black Hole Go!", True, WHITE)  # Przycisk startu
+            "Go Black Hole Go!", True, WHITE) 
         start_rect = start_button.get_rect(center=START_BUTTON_POS)
         is_hovering = start_rect.collidepoint(mouse_pos) and input_orbiting.isdigit(
-        # Czy mysz nad przyciskiem i dane poprawne
         ) and input_captured.isdigit()
 
         
-        # Rysowanie elementów UI
         screen.blit(
             title, (TITLE_POS[0] - title.get_width() // 2, TITLE_POS[1]))
         screen.blit(orbiting_label, ORBITING_LABEL_POS)
@@ -865,43 +780,39 @@ def start_menu():
         screen.blit(settings_button, settings_rect.topleft)
 
         if is_hovering:
-            # Animacja przy najechaniu na przycisk startu MAGIK
             start_button = font.render("Go Black Hole Go!", True, GREEN)
             pygame.draw.rect(screen, LIGHT_GRAY, start_rect, 2)
-            magik_star["angle"] += 2 * dt  # Obrót gwiazdy
+            magik_star["angle"] += 2 * dt  
             radius_x = 150
             radius_y = 30
             magik_star["x"] = start_rect.centerx + \
-                math.cos(magik_star["angle"]) * radius_x  # Pozycja x gwiazdy
+                math.cos(magik_star["angle"]) * radius_x  
             magik_star["y"] = start_rect.centery + 100 + \
-                math.sin(magik_star["angle"]) * radius_y  # Pozycja y gwiazdy
+                math.sin(magik_star["angle"]) * radius_y 
             pygame.draw.circle(screen, WHITE, (int(magik_star["x"]), int(
-                magik_star["y"])), magik_star["size"])  # Rysowanie gwiazdy
+                magik_star["y"])), magik_star["size"])  
             pygame.draw.rect(screen, GREEN, (int(magik_star["x"] - magik_star["size"] - 5), int(
-                # Ramka
                 magik_star["y"] - magik_star["size"] - 5), magik_star["size"] * 2 + 10, magik_star["size"] * 2 + 10), 2)
-            magik_text = tiny_font.render("MAGIK", True, GREEN)
+            magik_text = tiny_font.render("wieszjak", True, GREEN)
             screen.blit(magik_text, (int(magik_star["x"] - magik_text.get_width() // 2), int(
-                magik_star["y"] - magik_star["size"] - 20)))  # Tekst "MAGIK"
+                magik_star["y"] - magik_star["size"] - 20))) 
         screen.blit(start_button, start_rect.topleft)
 
-        # Podświetlenie przycisków informacyjnych
         if info_rect.collidepoint(mouse_pos):
-            info_button = tiny_font.render("[i] Informacje", True, LIGHT_GRAY)
+            info_button = tiny_font.render("INFO /", True, LIGHT_GRAY)
             pygame.draw.rect(screen, LIGHT_GRAY, info_rect, 2)
             screen.blit(info_button, info_rect.topleft)
         if more_info_rect.collidepoint(mouse_pos):
             more_info_button = tiny_font.render(
-                "[m] Więcej informacji", True, LIGHT_GRAY)
+                " MORE INFO /", True, LIGHT_GRAY)
             pygame.draw.rect(screen, LIGHT_GRAY, more_info_rect, 2)
             screen.blit(more_info_button, more_info_rect.topleft)
         if settings_rect.collidepoint(mouse_pos):
             settings_button = tiny_font.render(
-                "[s] Settings", True, LIGHT_GRAY)
+                "Settings", True, LIGHT_GRAY)
             pygame.draw.rect(screen, LIGHT_GRAY, settings_rect, 2)
             screen.blit(settings_button, settings_rect.topleft)
 
-        # Prostokąty pól wejściowych
         orbiting_input_rect = pygame.Rect(
             ORBITING_INPUT_POS[0], ORBITING_INPUT_POS[1], 50, 30)
         captured_input_rect = pygame.Rect(
@@ -909,34 +820,26 @@ def start_menu():
 
         mouse_x, mouse_y = pygame.mouse.get_pos()
         if orbiting_input_rect.collidepoint(mouse_x, mouse_y):
-            # Podświetlenie pola orbitujących
             pygame.draw.rect(screen, LIGHT_GRAY, orbiting_input_rect, 2)
         elif captured_input_rect.collidepoint(mouse_x, mouse_y):
-            # Podświetlenie pola przechwyconych
             pygame.draw.rect(screen, LIGHT_GRAY, captured_input_rect, 2)
 
         if active_input == "orbiting":
-            # Aktywne pole orbitujących
             pygame.draw.rect(screen, WHITE, orbiting_input_rect, 1)
         elif active_input == "captured":
-            # Aktywne pole przechwyconych
             pygame.draw.rect(screen, WHITE, captured_input_rect, 1)
 
-        # Obliczanie liczby gwiazd do wyświetlenia
         orbiting_count = int(input_orbiting) if input_orbiting.isdigit() else 0
         captured_count = int(input_captured) if input_captured.isdigit() else 0
 
-        # Rysowanie miniaturek gwiazd orbitujących
         for i in range(min(orbiting_count, 200)):
             row = i // 15
             col = i % 15
-            wiggle_x = math.sin(wiggle_time + i) * 2  # Animacja wiggle x
-            wiggle_y = math.cos(wiggle_time + i) * 2  # Animacja wiggle y
+            wiggle_x = math.sin(wiggle_time + i) * 2 
+            wiggle_y = math.cos(wiggle_time + i) * 2 
             pygame.draw.circle(screen, WHITE, (int(ORBITING_STARS_POS[0] + col * 20 + wiggle_x), int(
-                # Rysowanie gwiazd
                 ORBITING_STARS_POS[1] + row * 20 + wiggle_y)), 3)
 
-        # Rysowanie miniaturek gwiazd przechwyconych
         for i in range(min(captured_count, 200)):
             row = i // 15
             col = i % 15
@@ -945,115 +848,108 @@ def start_menu():
             pygame.draw.circle(screen, LIGHT_BLUE, (int(
                 CAPTURED_STARS_POS[0] + col * 20 + wiggle_x), int(CAPTURED_STARS_POS[1] + row * 20 + wiggle_y)), 3)
 
-        # Legenda klawiszy (pominięto szczegóły dla skrócenia)
         legend_lines_left = [
-            "Esc: Wyjdź",
-            "P: Pauza",
+            "Esc: Quit",
+            "P: Pause",
             "R: Restart",
-            "I: Ukryj interf.",
-            "WASD: Kamera",
-            "Q: Wł/Wył OTW",
+            "I: Show UI",
+            "WASD: CAM MOVEMENT",
+            "Q: on/off OTW",
             ",/.: Zoom"
         ]
         legend_lines_right = [
-            "T/Y: Dł. śladu",
+            "T/Y: Trail lenght",
             "G/H: GM",
-            "B/N: Rozm. BH",
-            "+/-: Gwiazdy",
-            "F: Statysty",
-            "E: Eksperyment",
-            "C: Zderzenia"
+            "B/N: Size of BH",
+            "+/-: Add/rem stars",
+            "F: Star stats",
+            "E: Edit/ UI sliders",
+            "C: Collision(WIP)"
         ]
 
         for i, line in enumerate(legend_lines_left):
             legend_text = tiny_font.render(line, True, WHITE)
-            # Rysowanie legendy lewej
             screen.blit(
                 legend_text, (LEGEND_LEFT_POS[0], LEGEND_LEFT_POS[1] + i * 20))
 
         for i, line in enumerate(legend_lines_right):
             legend_text = tiny_font.render(line, True, WHITE)
-            # Rysowanie legendy prawej
             screen.blit(
                 legend_text, (LEGEND_RIGHT_POS[0], LEGEND_RIGHT_POS[1] + i * 20))
 
-        # Obsługa zdarzeń w menu
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return "exit", 0, 0  # Wyjście z programu
+                return "exit", 0, 0  
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    return "exit", 0, 0  # Wyjście z programu
+                    return "exit", 0, 0 
                 elif event.key == pygame.K_CAPSLOCK:
                     active_input = "captured" if active_input == "orbiting" else "orbiting" if active_input is None or active_input == "captured" else None  # Przełączanie pól
                 elif event.key == pygame.K_BACKSPACE and active_input:
                     if active_input == "orbiting":
-                        input_orbiting = input_orbiting[:-1]  # Usuwanie znaku
+                        input_orbiting = input_orbiting[:-1] 
                     elif active_input == "captured":
                         input_captured = input_captured[:-1]
                 elif event.unicode.isdigit() and active_input:
                     if active_input == "orbiting":
-                        input_orbiting += event.unicode  # Dodawanie cyfry
+                        input_orbiting += event.unicode
                     elif active_input == "captured":
                         input_captured += event.unicode
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_x, mouse_y = event.pos
                 if orbiting_input_rect.collidepoint(mouse_x, mouse_y):
-                    active_input = "orbiting"  # Aktywacja pola orbitujących
+                    active_input = "orbiting"  
                 elif captured_input_rect.collidepoint(mouse_x, mouse_y):
-                    active_input = "captured"  # Aktywacja pola przechwyconych
+                    active_input = "captured"  
                 elif start_rect.collidepoint(mouse_x, mouse_y) and input_orbiting.isdigit() and input_captured.isdigit():
-                    fade_out(screen, screen.copy())  # Animacja zanikania
-                    # Przejście do symulacji
+                    fade_out(screen, screen.copy()) 
                     return "menu", int(input_orbiting), int(input_captured)
                 elif info_rect.collidepoint(mouse_x, mouse_y):
-                    info_screen()  # Otwarcie ekranu informacji
+                    info_screen() 
                 elif more_info_rect.collidepoint(mouse_x, mouse_y):
-                    more_info_screen()  # Otwarcie ekranu szczegółów
+                    more_info_screen() 
                 elif settings_rect.collidepoint(mouse_x, mouse_y):
-                    settings_menu()  # Otwarcie menu ustawień
+                    settings_menu()  
                 else:
-                    active_input = None  # Dezaktywacja pola
+                    active_input = None 
 
-        pygame.display.flip()  # Aktualizacja ekranu
+        pygame.display.flip() 
 
-    return "menu", 0, 0  # Domyślny zwrot, jeśli pętla się przerwie
+    return "menu", 0, 0 
 
-# Ekran informacyjny – wyświetla podstawowe informacje o symulacji
 def info_screen():
     font = pygame.font.SysFont("monospace", 20)
     tiny_font = pygame.font.SysFont("monospace", 12)
     clock = pygame.time.Clock()
 
-    # Lista parametrów i wyjaśnień (pominięto szczegóły)
     params = [
-        ("Skala odległości", "Dlaczego 1 px = 1e9 km?", 
-         "By ujarzmić bezmiar kosmosu na ekranie, 1 piksel równa się miliardowi kilometrów. To technika kompresji przestrzeni, która maluje orbity gwiazd w czytelnej formie."),
-        ("Newton kontra Einstein", "Mechanika uproszczona", 
-         "Symulacja stawia na Newtona dla płynności – OTW jest zbyt gęsta obliczeniowo. Włącz Q, by poczuć relatywistyczny oddech Einsteina, choć w uproszczeniu."),
-        ("GM = 20000", "Serce grawitacji", 
-         "Przeskalowana stała grawitacyjna – nie masa BH w kg, lecz liczba rzeźbiąca symulację. Jej wartość balansuje pikselowy świat z kosmiczną siłą."),
-        ("Event Horizon", "√(GM) w akcji", 
-         "Promień horyzontu zdarzeń rodzi się z √(GM) – uproszczona zależność, która oddaje potęgę masy i wyznacza granicę nieuchronnego końca."),
-        ("Prędkość ucieczki", "v_esc = √(2GM/r)", 
-         "Klucz do losu gwiazd – obliczana klasycznie, porównuje ruch gwiazdy z siłą czarnej dziury, decydując o jej upadku lub wolności."),
-        ("OTW (klawisz Q)", "Taniec peryhelium", 
-         "Włączenie OTW (Q) budzi relatywistyczną precesję – orbity wyginają się pod wpływem GM/r², łamiąc stabilność elips na rzecz kosmicznego chaosu.")
+        ("Distance Scale", "Why 1 px = 1e9 km?", 
+         "To tame the vastness of space on screen, 1 pixel equals a billion kilometers. This space compression technique paints star orbits in a readable form."),
+        ("Newton vs Einstein", "Simplified Mechanics", 
+         "The simulation relies on Newton for smoothness – GR is too heavy computationally. Press Q to feel Einstein’s relativistic breath, though simplified."),
+        ("GM = 20000", "Heart of Gravity", 
+         "A rescaled gravitational constant – not the BH mass in kg, but a number shaping the simulation. Its value balances the pixel world with cosmic force."),
+        ("Event Horizon", "√(GM) in Action", 
+         "The event horizon radius is born from √(GM) – a simplified relation reflecting the power of mass and marking the point of no return."),
+        ("Escape Velocity", "v_esc = √(2GM/r)", 
+         "The key to stars’ fate – classically calculated, it compares a star’s motion with the black hole’s pull, deciding its fall or freedom."),
+        ("GR (Q key)", "Perihelion Dance", 
+         "Enabling GR (Q) awakens relativistic precession – orbits bend under GM/r², breaking ellipse stability in favor of cosmic chaos.")
     ]
 
     explanations = [
-        ("Siła grawitacji", "F = GM * m / r²", 
-         "Prawo Newtona napędza symulację – przyspieszenie a = GM * r / r³ rzeźbi trajektorie, od stabilnych orbit po desperackie ucieczki."),
-        ("Mechanika wchłaniania", "P = f(v, v_esc, r_v)", 
-         "Prawdopodobieństwo upadku to taniec liczb – v gwiazdy, v_esc = √(2GM/r) i radialna składowa (r_v) decydują, czy czarna dziura pochłonie kolejny łup."),
-        ("Czas orbity", "T = 2π √(a³/GM)", 
-         "III prawo Keplera w pełnej krasie – okres T zależy od półośi wielkiej (a) i GM. SIMULATION_SPEED skaluje go dla oczu użytkownika."),
-        ("Energia i moment", "E_k = ½mv², L = mvr", 
-         "Klasyka mechaniki – energia kinetyczna i moment pędu obliczane w pikselowych jednostkach, odsłaniają dynamikę układu w J i kg·km²/s."),
-        ("Uproszczenie OTW", "Newton na straży", 
-         "OTW jest uśpiona dla wydajności – dylatacja czasu czy zakrzywienie światła ustępują prostocie. Q budzi ich cień w precesji orbit."),
-        ("Skala czasu", "Lata świetlne w Sim Time", 
-         "Czas symulowany płynie w latach świetlnych – TIME_SCALE przekłada pikselowe kroki na kosmiczną skalę, łącząc matematykę z epicką narracją.")
+        ("Gravitational Force", "F = GM * m / r²", 
+         "Newton’s law drives the simulation – acceleration a = GM * r / r³ shapes trajectories, from stable orbits to desperate escapes."),
+        ("Absorption Mechanics", "P = f(v, v_esc, r_v)", 
+         "The probability of falling in is a dance of numbers – the star’s v, v_esc = √(2GM/r), and radial component (r_v) decide if the black hole devours another victim."),
+        ("Orbital Period", "T = 2π √(a³/GM)", 
+         "Kepler’s 3rd law in full glory – period T depends on the semi-major axis (a) and GM. SIMULATION_SPEED scales it for the user’s eyes."),
+        ("Energy and Momentum", "E_k = ½mv², L = mvr", 
+         "Classical mechanics – kinetic energy and angular momentum calculated in pixel units reveal the system’s dynamics in J and kg·km²/s."),
+        ("GR Simplification", "Newton on Guard", 
+         "GR is asleep for performance – time dilation or light bending yield to simplicity. Q awakens their shadow in orbit precession."),
+        ("Time Scale", "Light Years in Sim Time", 
+         "Simulated time flows in light years – TIME_SCALE translates pixel steps into cosmic scale, blending math with epic narrative.")
     ]
 
     problem_text = """Wybór maksymalnej gwiazdy i implementacja integratora Leapfrog
@@ -1094,7 +990,7 @@ def info_screen():
     To powinno być lepsze niż Euler i zachowa stabilność symulacji.
     """
 
-    problem_button_text = tiny_font.render("Przykład problemu", True, GREEN)
+    problem_button_text = tiny_font.render("Problem example (PL)", True, GREEN)
     problem_button_rect = problem_button_text.get_rect(
         center=(WIDTH // 2, HEIGHT - 100))
     show_problem = False
@@ -1105,11 +1001,10 @@ def info_screen():
     last_update = pygame.time.get_ticks()
 
     while True:
-        screen.fill(BLACK)  # Czyszczenie ekranu
-        title = font.render("Informacje o symulacji", True, WHITE)
-        screen.blit(title, (WIDTH // 2 - title.get_width() // 2, 20))  # Tytuł
+        screen.fill(BLACK)  
+        title = font.render("INFO about simulation", True, WHITE)
+        screen.blit(title, (WIDTH // 2 - title.get_width() // 2, 20)) 
 
-        # Rysowanie parametrów i wyjaśnień (pominięto szczegóły renderowania)
         left_rect = Rect(50, 100, WIDTH // 2 - 100, HEIGHT - 200)
         for i, (name, value, desc) in enumerate(params):
             name_text = tiny_font.render(name, True, WHITE)
@@ -1138,11 +1033,9 @@ def info_screen():
 
         screen.blit(problem_button_text, problem_button_rect.topleft)
         if problem_button_rect.collidepoint(pygame.mouse.get_pos()):
-            # Podświetlenie przycisku problemu
             pygame.draw.rect(screen, LIGHT_GRAY, problem_button_rect, 2)
 
         if show_problem:
-            # Wyświetlanie tekstu problemu z animacją pisania (pominięto szczegóły)
             overlay = pygame.Surface((WIDTH, HEIGHT))
             overlay.fill(OVERLAY_COLOR)
             screen.blit(overlay, (0, 0))
@@ -1172,12 +1065,11 @@ def info_screen():
                 if scroll_offset > total_height - problem_rect.height:
                     scroll_offset = 0
 
-        # Przycisk powrotu
-        return_button = font.render("Powrót", True, WHITE)
+        return_button = font.render("BACK", True, WHITE)
         return_rect = return_button.get_rect(center=(WIDTH // 2, HEIGHT - 50))
         mouse_x, mouse_y = pygame.mouse.get_pos()
         if return_rect.collidepoint(mouse_x, mouse_y):
-            return_button = font.render("Powrót", True, GREEN)
+            return_button = font.render("BACK", True, GREEN)
             pygame.draw.rect(screen, LIGHT_GRAY, return_rect, 2)
         screen.blit(return_button, return_rect.topleft)
 
@@ -1187,10 +1079,10 @@ def info_screen():
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    show_problem = False if show_problem else True  # Przełączanie widoku problemu
+                    show_problem = False if show_problem else True  
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if return_rect.collidepoint(event.pos):
-                    return  # Powrót do menu
+                    return 
                 elif problem_button_rect.collidepoint(event.pos):
                     show_problem = not show_problem
                     if show_problem:
@@ -1201,61 +1093,58 @@ def info_screen():
         pygame.display.flip()
         clock.tick(60)
 
-# Ekran szczegółowych informacji o symulacji
 def more_info_screen():
     font = pygame.font.SysFont("monospace", 20)
     tiny_font = pygame.font.SysFont("monospace", 15)
     clock = pygame.time.Clock()
 
-    # Lista szczegółowych informacji (pominięto szczegóły)
     detailed_info = [
-    ("Parametry globalne", "",
-     "Oto szczegółowy przegląd fundamentów symulacji – zasad rządzących kosmicznym chaosem:"),
+    ("Global parameters", "",
+     "Here’s a detailed overview of the simulation’s foundations – the rules governing cosmic chaos:"),
     ("GM", f"GM = {GM}", 
-     "Przeskalowana stała grawitacyjna, serce przyciągania czarnej dziury. Rzeźbi dynamikę orbit i pożeranie gwiazd. Reguluj G/H, by zgłębić jej moc."),
-    ("SIMULATION_SPEED", f"Prędkość symulacji: {SIMULATION_SPEED}x",
-     "Kontroler czasu – definiuje, jak szybko wszechświat pulsuje na ekranie. Przy 2.0 odzwierciedla obecne tempo, manipuluj strzałkami lewo/prawo, by zwolnić lub przyspieszyć kosmos."),
-    ("TRAIL_LENGTH", f"Długość śladu: {TRAIL_LENGTH}",
-     "Ślady gwiazd w pikselach – mapa ich podróży przez przestrzeń. Dostosuj T/Y, by śledzić ich taniec w szczegółach."),
-    ("MAX_INITIAL_VELOCITY", f"Maksymalna początkowa prędkość: {MAX_INITIAL_VELOCITY}",
-     "Początkowy impet przechwyconych gwiazd – nadaje im życie na starcie, określając ich los w grawitacyjnej grze."),
-    ("PX_TO_KM", f"Skala pikseli: 1 px = {PX_TO_KM} km",
-     "Kosmiczna miarka – każdy piksel to miliardy kilometrów, tłumacząc ogrom przestrzeni na ekranową opowieść."),
-    ("C", f"Prędkość światła: {C} km/s",
-     "Granica wszechświata – stała OTW, strażnik prędkości w opcjonalnych efektach relatywistycznych."),
-    ("TIME_SCALE", f"Skala czasu: {TIME_SCALE}",
-     "Most między symulacją a latami świetlnymi – przelicza pikselowe kroki w epickie odcinki czasu."),
-    ("STAR_GM_FACTOR", f"Siła interakcji gwiazd: {STAR_GM_FACTOR}",
-     "Grawitacyjne więzy między gwiazdami – gdy STAR_INTERACTION_ENABLED żyje, definiuje ich wzajemny taniec."),
-    ("MAX_STAR_ACCEL", f"Maksymalne przyspieszenie gwiazd: {MAX_STAR_ACCEL}",
-     "Tarcza stabilności – ogranicza szaleństwo przyspieszeń między gwiazdami, chroniąc symulację przed chaosem."),
-    ("RELATIVITY_STRENGTH", f"Siła efektów OTW: {RELATIVITY_STRENGTH}",
-     "Puls Einsteina – gdy RELATIVITY_ENABLED działa, wprowadza subtelne zakrzywienia czasoprzestrzeni."),
+     "A rescaled gravitational constant – the heart of the black hole’s pull. It shapes orbital dynamics and star devouring. Adjust G/H to explore its power."),
+    ("SIMULATION_SPEED", f"Simulation speed: {SIMULATION_SPEED}x",
+     "Time controller – defines how fast the universe pulses on screen. At 2.0 it reflects the current pace; tweak left/right arrows to slow down or speed up the cosmos."),
+    ("TRAIL_LENGTH", f"Trail lenght: {TRAIL_LENGTH}",
+     "Star trails in pixels – a map of their journey through space. Adjust T/Y to track their dance in detail."),
+    ("MAX_INITIAL_VELOCITY", f"Max initial velocity: {MAX_INITIAL_VELOCITY}",
+     "Initial impulse for captured stars – gives them life at the start, defining their fate in the gravitational game."),
+    ("PX_TO_KM", f"Pixel scale:: 1 px = {PX_TO_KM} km",
+     "Cosmic ruler – each pixel equals billions of kilometers, translating the vastness of space to an on-screen tale."),
+    ("C", f"Speed of light: {C} km/s",
+     "The limit of the universe – a general relativity constant, the speed guardian for optional relativistic effects."),
+    ("TIME_SCALE", f"Time scale: {TIME_SCALE}",
+     "The bridge between the simulation and light-years – converts pixel steps into epic time spans."),
+    ("STAR_GM_FACTOR", f"Star interaction strength: {STAR_GM_FACTOR}",
+     "Gravitational bonds between stars – when STAR_INTERACTION_ENABLED is on, defines their mutual dance."),
+    ("MAX_STAR_ACCEL", f"Max star acceleration: {MAX_STAR_ACCEL}",
+     "A stability shield – limits runaway star accelerations, keeping the simulation from chaotic collapse."),
+    ("RELATIVITY_STRENGTH", f"Relativity strength (OTW [pl] GR [eng]: {RELATIVITY_STRENGTH}",
+     "Einstein’s pulse – when RELATIVITY_ENABLED is on, introduces subtle spacetime curvature."),
     ("FALLING_STARS_ENABLED/FALLING_STARS_PERCENTAGE",
-     f"Spadanie gwiazd: {FALLING_STARS_PERCENTAGE}%", 
-     "Wyrok czarnej dziury – definiuje, jak często gwiazdy wpadają w jej objęcia i z jakim prawdopodobieństwem."),
-    ("EVENT_HORIZON_RADIUS", f"Promień horyzontu zdarzeń: {EVENT_HORIZON_RADIUS}",
-     "Granica bez powrotu – zależna od GM, wyznacza strefę, gdzie gwiazdy znikają w otchłani."),
-    ("CRITICAL_HIGHLIGHT_ENABLED", "Podświetlenie krytyczne",
-     "Latarnia w mroku – wyróżnia gwiazdy na krawędzi zagłady, ułatwiając obserwację ich ostatnich chwil."),
-    ("RELATIVITY_ENABLED/RELATIVITY_VISUALS_ENABLED", "Efekty OTW",
-     "Szept Einsteina – aktywuje relatywistyczne zakrzywienia i wizualne echa, jak przesunięcie ku czerwieni."),
-    ("STAR_INTERACTION_ENABLED", "Interakcje gwiazd",
-     "Kosmos w ruchu – włącza grawitacyjne dialogi między gwiazdami, tworząc złożone układy N-ciał."),
-    ("COLLISIONS_ENABLED", "Zderzenia gwiazd",
-     "Kosmiczne kolizje – pozwala gwiazdom się łączyć, zmieniając masę i trajektorie w dramatycznych spotkaniach."),
-    ("BLACK_HOLE_RADIUS", f"Rozmiar czarnej dziury: {BLACK_HOLE_RADIUS}",
-     "Cień otchłani – wizualna skala czarnej dziury, regulowana B/N dla pełnego efektu."),
-    ("camera_x, camera_y, camera_zoom", "Kamera",
-     "Oko obserwatora – WASD i ,/. sterują widokiem, przybliżając lub oddalając kosmiczną scenę.")
+     f"Falling stars: {FALLING_STARS_PERCENTAGE}%", 
+     "The black hole’s verdict – defines how often stars fall into its embrace and with what probability."),
+    ("EVENT_HORIZON_RADIUS", f"Event horizon radius: {EVENT_HORIZON_RADIUS}",
+     "The point of no return – depends on GM, marking the zone where stars vanish into the abyss."),
+    ("CRITICAL_HIGHLIGHT_ENABLED", "Critical highlight",
+     "A beacon in the dark – highlights stars on the brink of doom, making their final moments easier to follow."),
+    ("RELATIVITY_ENABLED/RELATIVITY_VISUALS_ENABLED", "OTW/GR effects",
+     "Einstein’s whisper – activates relativistic warping and visual echoes like redshift."),
+    ("STAR_INTERACTION_ENABLED", "Star interactions",
+     "Cosmos in motion – enables gravitational dialogues between stars, creating complex N-body systems."),
+    ("COLLISIONS_ENABLED", "Star collisions",
+     "Cosmic crashes – allows stars to merge, changing mass and trajectories in dramatic encounters."),
+    ("BLACK_HOLE_RADIUS", f"Black hole size: {BLACK_HOLE_RADIUS}",
+     "Shadow of the abyss – visual scale of the black hole, adjustable with B/N for full effect."),
+    ("camera_x, camera_y, camera_zoom", "Camera",
+      "The observer’s eye – use WASD and ,/. to move the view, zooming the cosmic stage in or out. (mouse scroll work as well)")
 ]
 
     while True:
         screen.fill(BLACK)
-        title = font.render("Szczegółowe informacje o symulacji", True, WHITE)
+        title = font.render("Detailed information about simulation", True, WHITE)
         screen.blit(title, (WIDTH // 2 - title.get_width() // 2, 20))
 
-        # Rysowanie informacji (pominięto szczegóły renderowania)
         content_rect = Rect(50, 100, WIDTH - 100, HEIGHT - 200)
         for i, (name, value, desc) in enumerate(detailed_info):
             name_text = tiny_font.render(name, True, WHITE)
@@ -1271,12 +1160,11 @@ def more_info_screen():
                 screen.blit(surface, (content_rect.left + name_text.get_width() +
                             value_text.get_width() + 20, content_rect.top + i * 40 + pos[1]))
 
-        # Przycisk powrotu
-        return_button = font.render("Powrót", True, WHITE)
+        return_button = font.render("Back", True, WHITE)
         return_rect = return_button.get_rect(center=(WIDTH // 2, HEIGHT - 50))
         mouse_x, mouse_y = pygame.mouse.get_pos()
         if return_rect.collidepoint(mouse_x, mouse_y):
-            return_button = font.render("Powrót", True, GREEN)
+            return_button = font.render("Back", True, GREEN)
             pygame.draw.rect(screen, LIGHT_GRAY, return_rect, 2)
         screen.blit(return_button, return_rect.topleft)
 
@@ -1291,24 +1179,22 @@ def more_info_screen():
         pygame.display.flip()
         clock.tick(60)
 
-# Określanie stanu gwiazdy względem horyzontu zdarzeń
 def get_star_state(star):
     distance_to_bh = math.hypot(
-        star.x - WIDTH / 2, star.y - HEIGHT / 2)  # Odległość od BH
+        star.x - WIDTH / 2, star.y - HEIGHT / 2)  
     radial_velocity = (star.vx * (star.x - WIDTH / 2) + star.vy * (star.y - HEIGHT / 2)
-                       ) / distance_to_bh if distance_to_bh > 0 else 0  # Prędkość radialna
-    critical_inner = EVENT_HORIZON_RADIUS  # Wewnętrzna granica krytyczna
-    critical_outer = EVENT_HORIZON_RADIUS + 10  # Zewnętrzna granica krytyczna
+                       ) / distance_to_bh if distance_to_bh > 0 else 0  
+    critical_inner = EVENT_HORIZON_RADIUS  
+    critical_outer = EVENT_HORIZON_RADIUS + 10  
     if distance_to_bh <= critical_inner:
-        return "inside"  # Wewnątrz horyzontu
+        return "inside"  
     elif critical_inner < distance_to_bh <= critical_outer:
         if radial_velocity < 0:
-            return "approaching"  # Zbliżanie się
+            return "approaching"  
         elif radial_velocity > 0:
-            return "exiting"  # Oddalanie się
-    return None  # Poza strefą krytyczną
+            return "exiting" 
+    return None  
 
-# Funkcja loading_screen (wklejam ją bez zmian, zakładam, że działa)
 def loading_screen(screen):
     WIDTH, HEIGHT = screen.get_size()
     font_large = pygame.font.SysFont("monospace", 48, bold=True)
@@ -1336,12 +1222,12 @@ def loading_screen(screen):
     progress_per_step = 100 / total_steps
 
     loading_messages = [
-        ("Generowanie świata", 1.0),
-        ("Przywracanie Stephena Hawkinga do życia", 2.0),
-        ("Aplikowanie newtonowskich praw", 1.0),
-        ("Obliczanie trajektorii orbit", 1.0),
-        ("Sprowadzanie Einsteina na konsultacje", 2.0),
-        ("Generowanie gwiazd na gotowo", 1.3)
+        ("Generating world", 1.0),
+        ("Bringing Stephen Hawking to life", 2.0),
+        ("Applying Newton's law", 1.0),
+        ("Calculating stars orbits", 1.0),
+        ("Inviting Einstein for consultations", 2.0),
+        ("Generating Stars", 1.3)
     ]
     message_base_y = bar_y + bar_height + 20
     message_x = WIDTH // 2
@@ -1400,7 +1286,6 @@ def loading_screen(screen):
                 current_pause_time = loading_messages[current_message_idx][1]
             print(f"Message {current_message_idx}: {loading_messages[min(current_message_idx, len(loading_messages)-1)][0]}")
 
-        # Pasek ładowania
         target_progress = progress_per_step * (current_message_idx + 1 if current_message_idx < len(loading_messages) else total_steps)
         if current_message_idx < len(loading_messages):
             if not is_paused and loading_progress < target_progress:
@@ -1477,7 +1362,6 @@ def loading_screen(screen):
     print("Loading screen finished, returning True")
     return True
 
-# Główna funkcja symulacji – obsługuje fizykę i renderowanie
 def main_simulation():
     global GM, STRONG_FIELD_RADIUS, EVENT_HORIZON_RADIUS, isometric_view, to_remove, stars, simulated_time, selected_star_idx, absorbed_stars, camera_x, camera_y, camera_zoom, elapsed_time, SIMULATION_SPEED, TRAIL_LENGTH, BLACK_HOLE_RADIUS, FALLING_STARS_ENABLED, FALLING_STARS_PERCENTAGE, STAR_GM_FACTOR, RELATIVITY_STRENGTH, RELATIVITY_ENABLED, RELATIVITY_VISUALS_ENABLED, STAR_INTERACTION_ENABLED, COLLISIONS_ENABLED, prediction_length, CRITICAL_HIGHLIGHT_ENABLED, NUM_ORBITING, NUM_CAPTURED, ORBITS_ENABLED, dragging_star
     print("Entering main_simulation")
@@ -1640,13 +1524,12 @@ def main_simulation():
                 exited_stars = 0
                 replace_exited_stars = True
 
-                num_steps = max(1, int(dt * (SIMULATION_SPEED * 0.125) / dt_phys))  # Skalowanie o 0.25
+                num_steps = max(1, int(dt * (SIMULATION_SPEED * 0.125) / dt_phys))
                 trail_counter += 1
                 for _ in range(num_steps):
                     accelerations = []
                     for star in stars:
                         ax, ay, az = 0.0, 0.0, 0.0
-                        # Wpływ czarnej dziury
                         dx = WIDTH / 2 - star.x
                         dy = HEIGHT / 2 - star.y
                         r = math.hypot(dx, dy)
@@ -1655,7 +1538,6 @@ def main_simulation():
                             ax += force * dx / r
                             ay += force * dy / r
 
-                        # Wpływ innych gwiazd (N-ciał)
                         if STAR_INTERACTION_ENABLED:
                             for other in stars:
                                 if other != star:
@@ -1668,7 +1550,6 @@ def main_simulation():
                                         ay += force * dy / r / star.mass
                         accelerations.append((ax, ay, az))
 
-                    # Aktualizacja pozycji i prędkości
                     for star, (ax, ay, az) in zip(stars, accelerations):
                         star.vx += ax * dt_phys
                         star.vy += ay * dt_phys
@@ -1678,20 +1559,18 @@ def main_simulation():
                         star.x += star.vx * dt_phys
                         star.y += star.vy * dt_phys
 
-                        # Losowy impuls dla dynamiki
                         if random.random() < 0.01:
                             impulse = random.uniform(-0.1, 0.1)
                             star.vx += impulse
                             star.vy += impulse
 
-                        if ORBITS_ENABLED and trail_counter % 5 == 0:  # Wracam do co 5 kroków
+                        if ORBITS_ENABLED and trail_counter % 5 == 0: 
                             star.trail.append((star.x, star.y))
                             if len(star.trail) > trail_editable_length:
                                 star.trail.pop(0)
                             point = (star.x, star.y, star.z) if hasattr(star, 'z') else (star.x, star.y)
                             star.current_orbit_points.append(point)
 
-                            # Logika dla gwiazd orbitujących (na podstawie odległości)
                             if not star.captured:
                                 current_distance = math.hypot(star.x - WIDTH / 2, star.y - HEIGHT / 2)
                                 if star.previous_distance is not None:
@@ -1705,7 +1584,6 @@ def main_simulation():
                                             star.current_orbit_points = []
                                 star.previous_distance = current_distance
 
-                        # Logika dla gwiazd przechwyconych (na podstawie kąta)
                         dx = star.x - WIDTH / 2
                         dy = star.y - HEIGHT / 2
                         current_angle = math.atan2(dy, dx)
@@ -1725,7 +1603,6 @@ def main_simulation():
                                     star.total_angle = 0.0
                         star.last_angle = current_angle
 
-                        # Precesja i perturbacje tylko dla orbitujących
                         if not star.captured and STAR_INTERACTION_ENABLED:
                             if random.random() < 0.005:
                                 angle_shift = random.uniform(-0.01, 0.01)
@@ -1747,7 +1624,6 @@ def main_simulation():
                 if trail_counter >= trail_update_interval:
                     trail_counter = 0
 
-            # Obsługa zdarzeń
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return "exit"
@@ -1895,7 +1771,7 @@ def main_simulation():
                             ui_clicked = True
                         elif selected_star_idx is not None and stars and 0 <= selected_star_idx < len(stars):
                             selected_star = stars[selected_star_idx]
-                            if show_orbit_rect.collidepoint(mouse_x, mouse_y):  # Używamy wcześniej ustawionego show_orbit_rect
+                            if show_orbit_rect.collidepoint(mouse_x, mouse_y): 
                                 show_orbits = not show_orbits
                                 ui_clicked = True
                     if not ui_clicked and stars and event.button == 1:
@@ -2186,9 +2062,9 @@ def main_simulation():
                     if hasattr(selected_star, 'last_orbit_points') and selected_star.last_orbit_points:
                         transformed_points = []
                         for point in selected_star.last_orbit_points:
-                            if len(point) == 3:  # (x, y, z)
+                            if len(point) == 3: 
                                 x, y, z = point
-                            else:  # (x, y)
+                            else: 
                                 x, y = point
                                 z = 0
                             if isometric_view:
@@ -2262,13 +2138,12 @@ def main_simulation():
                     stats_left.append(f"Show Orbit: {'On' if show_orbits else 'Off'}")
                     stats_left.append(f"Orbits Completed: {selected_star.orbits_completed if not selected_star.captured else selected_star.orbit_count}")
                     
-                    # Rysowanie i ustawienie rectów
                     for i, line in enumerate(stats_left):
-                        color = WHITE if i != len(stats_left) - 2 else (GREEN if show_orbits else RED)  # "Show Orbit" to przedostatnia linia
+                        color = WHITE if i != len(stats_left) - 2 else (GREEN if show_orbits else RED) 
                         text = font.render(line, True, color)
                         text_rect = text.get_rect(topleft=(10, 10 + i * 15))
                         screen.blit(text, text_rect.topleft)
-                        if i == len(stats_left) - 2:  # Rect dla "Show Orbit"
+                        if i == len(stats_left) - 2: t"
                             show_orbit_rect = text_rect
                         next_y_position = 10 + (i + 1) * 15
                     
@@ -2411,32 +2286,30 @@ def main_simulation():
             print(f"Error in main_simulation loop: {e}")
             return "exit"
 
-    return "menu"  # Powrót do menu po zakończeniu pętli
+    return "menu"  
 
-# Resetowanie symulacji – tworzenie nowych gwiazd i zerowanie parametrów
 def reset_simulation(used_names):
     global stars, simulated_time, selected_star_idx, absorbed_stars, camera_x, camera_y, camera_zoom, elapsed_time
-    used_names.clear()  # Czyszczenie listy użytych nazw
-    stars = [Star(captured=False, used_names=used_names) for _ in range(NUM_ORBITING)] + [Star(captured=True, used_names=used_names) for _ in range(NUM_CAPTURED)]  # Tworzenie nowych gwiazd
-    simulated_time = 0  # Zerowanie czasu symulowanego
-    elapsed_time = 0  # Zerowanie czasu rzeczywistego
-    selected_star_idx = 0 if stars else None  # Reset indeksu wybranej gwiazdy
-    absorbed_stars = 0  # Zerowanie wchłoniętych gwiazd
-    camera_x, camera_y = WIDTH / 2, HEIGHT / 2  # Reset pozycji kamery
-    camera_zoom = 1.0  # Reset zoomu kamery
+    used_names.clear()  
+    stars = [Star(captured=False, used_names=used_names) for _ in range(NUM_ORBITING)] + [Star(captured=True, used_names=used_names) for _ in range(NUM_CAPTURED)] 
+    simulated_time = 0 
+    elapsed_time = 0 
+    selected_star_idx = 0 if stars else None  
+    absorbed_stars = 0 
+    camera_x, camera_y = WIDTH / 2, HEIGHT / 2 
+    camera_zoom = 1.0  
 
-# Zmodyfikowana główna pętla
 if __name__ == "__main__":
     while True:
-        action, NUM_ORBITING, NUM_CAPTURED = start_menu()  # Uruchomienie menu startowego
+        action, NUM_ORBITING, NUM_CAPTURED = start_menu() 
         if action == "exit":
-            break  # Wyjście z programu
-        reset_simulation(set())  # Reset symulacji przed startem
-        fade_out(screen, screen.copy())  # Animacja zanikania
-        if not loading_screen(screen):  # Wywołanie ekranu ładowania
-            break  # Wyjście, jeśli użytkownik zamknie okno podczas ładowania
-        action = main_simulation()  # Uruchomienie symulacji
+            break 
+        reset_simulation(set()) 
+        fade_out(screen, screen.copy()) 
+        if not loading_screen(screen): 
+            break  
+        action = main_simulation() 
         if action == "exit":
-            break  # Wyjście z programu
-    pygame.quit()  # Zamknięcie Pygame
-    sys.exit()  # Wyjście z programu
+            break 
+    pygame.quit() 
+    sys.exit() 
