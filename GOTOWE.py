@@ -2154,11 +2154,11 @@ def main_simulation():
 
                 orbits_rect = orbits_text.get_rect(topleft=(10, next_y_position))
 
-                simulation_time_text = font.render(f"Czas symulacji: {elapsed_time:.2f} s", True, LIGHT_BLUE)
-                uplyw_lat_text = font.render(f"Upływ lat: {years} lat, {months} miesięcy", True, LIGHT_BLUE)
+                simulation_time_text = font.render(f"Simulation time: {elapsed_time:.2f} s", True, LIGHT_BLUE)
+                uplyw_lat_text = font.render(f"Time Lapse: {years} Years, {months} Months", True, LIGHT_BLUE)
                 screen.blit(simulation_time_text, (10, HEIGHT - 75))
                 screen.blit(uplyw_lat_text, (10, HEIGHT - 60))
-                legend_text = font.render("S^1 = Masa Słońca (1.989e30 kg)", True, WHITE)
+                legend_text = font.render("S^1 = Mass of the sun (1.989e30 kg)", True, WHITE)
                 screen.blit(legend_text, (10, HEIGHT - 30))
 
                 screen.blit(sim_speed_text, (WIDTH - sim_speed_text.get_width() - 10, 10))
