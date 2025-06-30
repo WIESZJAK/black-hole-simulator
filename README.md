@@ -4,11 +4,12 @@ This project is a sophisticated simulation of a black hole system, developed usi
 
 ## Features
 
-- **Orbiting and Captured Stars**: Simulate stars in stable orbits or dynamically captured by the black hole.
-- **Trajectory Visualizations**: Display star paths with adjustable trail lengths for clear orbital tracking.
-- **Interactive UI**: Control simulation parameters like gravitational strength, speed, and star count via an in-game interface.
-- **Physics Options**: Toggle relativistic effects (e.g., orbital precession), star collisions, and gravitational interactions.
-- **3D Isometric View**: Switch to an isometric perspective for enhanced visualization.
+- Simulate stars orbiting or being captured by a central black hole.
+- Toggle relativistic effects like orbital precession (via General Relativity approximations).
+- Adjust simulation parameters such as gravitational strength, simulation speed, and black hole size.
+- Switch between 2D and isometric (3D-like) views.
+- Enable star collisions and experimental sliders for real-time tweaking.
+- Visualize star trails, orbits, and detailed statistics.
 
 ## Installation
 
@@ -33,7 +34,7 @@ To run the simulator, ensure you have Python and Pygame installed. Follow these 
 
 ## Usage
 
-1. Start the simulator from the main menu, where you can specify the number of orbiting and captured stars.
+1. Start the simulator from the main menu, where you can specify the number of orbiting and captured stars. (GO BLACK HOLE GO!) (for optimal use 50 or 100 tops on each. if you want to set a slow simulation you can add up to 1000 stars)
 2. After the simulation loads, press **"I"** to display the user interface.
 3. Press **"E"** to access sliders for editing simulation parameters (e.g., gravitational constant, trail length).
 4. Press **"F"** to view detailed statistics about the simulation and selected stars.
@@ -49,7 +50,32 @@ To run the simulator, ensure you have Python and Pygame installed. Follow these 
 - **I**: Toggle UI visibility.
 - **E**: Open sliders for parameter editing.
 - **F**: Display detailed simulation statistics.
-- **Additional Keys**: Check the in-game UI for more controls (e.g., "P" to pause, "R" to reset).
+- **Additional Keys**:
+- Here are all the keyboard shortcuts available in the simulator:
+
+Esc: Quit the program (start menu) or exit the simulation (main simulation).
+Caps Lock: Switch between input fields in the start menu.
+Backspace: Delete the last character in the active input field (start menu).
+P: Pause or unpause the simulation.
+R: Restart the simulation.
+L: Toggle realism mode (caps star velocities at the speed of light).
+I: Show/hide the user interface.
+Q: Toggle relativistic effects (e.g., orbital precession).
+F: Show/hide detailed statistics.
+E: Show/hide experimental sliders.
+C: Toggle collision mechanics (WIP).
+V: Switch between 2D and isometric view.
+Keypad +: Add a new star.
+Keypad -: Remove an orbiting star.
+Left Arrow: Decrease simulation speed.
+Right Arrow: Increase simulation speed.
+T: Decrease star trail length.
+Y: Increase star trail length.
+H: Decrease gravitational constant (GM).
+G: Increase gravitational constant (GM).
+N: Decrease black hole visual radius.
+B: Increase black hole visual radius.
+W, A, S, D: Move the camera up, left, down, or right.
 
 ## Demo
 
@@ -73,4 +99,5 @@ See the [LICENSE](LICENSE.md) file for full details.
 
 ## Contact & Contributions
 
+WIESZJAK // MAGIK // DRNK - ALL IN ONE drnkk.deviantart.com @ festowe@gmail.com
 For questions, suggestions, or contributions, feel free to open an issue or submit a pull request on the GitHub repository. This project is part of my portfolio as a mid-level AI/ML developer, and I welcome collaboration to enhance its features!
