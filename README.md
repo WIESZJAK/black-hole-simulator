@@ -16,7 +16,7 @@ To run the simulator, ensure you have Python and Pygame installed. Follow these 
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/black-hole-simulator.git
+   git clone https://github.com/WIESZJAK/black-hole-simulator.git
    ```
 2. Navigate to the project directory:
    ```
@@ -30,8 +30,6 @@ To run the simulator, ensure you have Python and Pygame installed. Follow these 
    ```
    python GOTOWE.py
    ```
-
-Replace `yourusername` with your GitHub username.
 
 ## Usage
 
