@@ -2143,7 +2143,7 @@ def main_simulation():
                         text = font.render(line, True, color)
                         text_rect = text.get_rect(topleft=(10, 10 + i * 15))
                         screen.blit(text, text_rect.topleft)
-                        if i == len(stats_left) - 2: t"
+                        if i == len(stats_left) - 2:
                             show_orbit_rect = text_rect
                         next_y_position = 10 + (i + 1) * 15
                     
